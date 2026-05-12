@@ -6,6 +6,8 @@ class TrackTile extends StatelessWidget {
   final int? index;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+  final VoidCallback? onDownload;
+  final bool showDownload;
 
   const TrackTile({
     super.key,
@@ -13,10 +15,14 @@ class TrackTile extends StatelessWidget {
     this.index,
     this.onTap,
     this.onLongPress,
+    this.onDownload,
+    this.showDownload = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    final duration = item['duration'] as int?;
+
     return ListTile(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -67,12 +73,28 @@ class TrackTile extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      trailing: item['duration'] != null
-          ? Text(
-              _formatDuration(Duration(seconds: item['duration'] as int)),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (onDownload != null && showDownload)
+            SizedBox(
+              width: 36,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(Icons.download_outlined, size: 20),
+                color: AppTheme.accentCyan,
+                onPressed: onDownload,
+              ),
+            ),
+          if (duration != null)
+            Text(
+              _formatDuration(Duration(seconds: duration)),
               style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
             )
-          : const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
+          else
+            const Icon(Icons.chevron_right, color: AppTheme.textSecondary, size: 20),
+        ],
+      ),
     );
   }
 

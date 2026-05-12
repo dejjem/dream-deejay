@@ -5,6 +5,7 @@ import 'package:just_audio/just_audio.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/services/audio_handler.dart';
 import '../../core/di/injection.dart';
+import '../../data/services/local_db_service.dart';
 import '../providers/providers.dart';
 import '../widgets/track_tile.dart';
 import '../widgets/section_header.dart';
@@ -157,6 +158,7 @@ class HomeScreen extends ConsumerState {
                   item: _chartTracks[i],
                   index: i + 1,
                   onTap: () => _playTrack(_chartTracks, i),
+                  onDownload: () => _downloadTrack(_chartTracks[i]),
                 ),
               ),
             ],
@@ -184,6 +186,34 @@ class HomeScreen extends ConsumerState {
 
     queueNotifier.setQueue(tracks, initialIndex: index);
     queueNotifier.setPlaying(true);
+  }
+
+  void _downloadTrack(Map<String, dynamic> track) async {
+    final id = track['id'] as int?;
+    if (id == null) return;
+    try {
+      final db = getIt<LocalDbService>();
+      final alreadyDownloaded = await db.isDownloaded(id);
+      if (alreadyDownloaded) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Already downloaded'),
+              backgroundColor: AppTheme.bgCard, duration: Duration(seconds: 1)),
+        );
+        return;
+      }
+      final path = await db.downloadTrack(track);
+      if (path != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Downloaded: ${track['title']}'),
+              backgroundColor: AppTheme.bgCard, duration: const Duration(seconds: 2)),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Download failed: $e'),
+            backgroundColor: AppTheme.bgCard, duration: const Duration(seconds: 2)),
+      );
+    }
   }
 }
 

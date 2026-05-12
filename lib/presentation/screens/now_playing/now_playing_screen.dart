@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audio_service/audio_service.dart';
@@ -6,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/services/ai_dj_service.dart';
 import '../../../core/di/injection.dart';
+import '../../../data/services/local_db_service.dart';
 import '../../providers/providers.dart';
 
 class NowPlayingScreen extends ConsumerStatefulWidget {
@@ -23,8 +25,10 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   Duration _duration = Duration.zero;
   bool _isPlaying = false;
   bool _isDjSpeaking = false;
+  bool _isFavorite = false;
   String _djText = '';
   final _aiDj = getIt<AiDjService>();
+  final _db = getIt<LocalDbService>();
 
   @override
   void initState() {
@@ -43,6 +47,14 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     _playingSub = handler.playerStateStream.listen((state) {
       if (mounted) setState(() => _isPlaying = state.playing);
     });
+  }
+
+  void _checkFavoriteStatus(Map<String, dynamic>? track) async {
+    if (track == null) return;
+    final id = track['id'] as int?;
+    if (id == null) return;
+    final isFav = await _db.isFavorite(id);
+    if (mounted) setState(() => _isFavorite = isFav);
   }
 
   @override
@@ -70,7 +82,21 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
       location = await _aiDj.getCurrentLocation();
     } catch (_) {}
 
-    final countryCode = 'us'; // TODO: get from device locale
+    // Derive country code from device locale for NewsAPI
+    String countryCode = 'us';
+    try {
+      final locale = Platform.resolvedLocale ?? Platform.locale;
+      if (locale.contains('_')) {
+        countryCode = locale.split('_').last.toLowerCase();
+      } else if (locale.contains('-')) {
+        countryCode = locale.split('-').last.toLowerCase();
+      } else if (locale.length == 2) {
+        countryCode = locale.toLowerCase();
+      }
+      // NewsAPI only supports specific country codes; fall back for unsupported ones
+      const supported = {'ae','ar','at','au','be','bg','br','ca','ch','cn','co','cu','cz','de','eg','fr','gb','gr','hk','hu','id','ie','il','in','it','jp','kr','lt','lv','ma','mx','my','ng','nl','no','nz','ph','pl','pt','ro','rs','ru','sa','se','sg','si','sk','th','tr','tw','ua','us','ve','za'};
+      if (!supported.contains(countryCode)) countryCode = 'us';
+    } catch (_) {}
 
     final announcement = await _aiDj.buildAnnouncement(
       trackTitle: next['title'] ?? '',
@@ -106,6 +132,8 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   Widget build(BuildContext context) {
     final queue = ref.watch(queueProvider);
     final current = queue.currentTrack;
+    // Update favorite icon when track changes
+    _checkFavoriteStatus(current);
 
     return Scaffold(
       backgroundColor: AppTheme.bgDeep,
@@ -309,17 +337,39 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.favorite_border, size: 28),
+                        icon: Icon(
+                          _isFavorite ? Icons.favorite : Icons.favorite_border,
+                          size: 28,
+                        ),
                         color: AppTheme.accentMagenta,
-                        onPressed: () {
-                          // TODO: Save to favorites
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Saved to favorites'),
-                              duration: Duration(seconds: 1),
-                              backgroundColor: AppTheme.bgCard,
-                            ),
-                          );
+                        onPressed: () async {
+                          final queue = ref.read(queueProvider);
+                          final track = queue.currentTrack;
+                          if (track == null) return;
+                          final id = track['id'] as int?;
+                          if (id == null) return;
+
+                          if (_isFavorite) {
+                            await _db.removeFavorite(id);
+                            if (mounted) setState(() => _isFavorite = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Removed from favorites'),
+                                duration: Duration(seconds: 1),
+                                backgroundColor: AppTheme.bgCard,
+                              ),
+                            );
+                          } else {
+                            await _db.addFavorite(track);
+                            if (mounted) setState(() => _isFavorite = true);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Saved to favorites'),
+                                duration: Duration(seconds: 1),
+                                backgroundColor: AppTheme.bgCard,
+                              ),
+                            );
+                          }
                         },
                       ),
                     ],
