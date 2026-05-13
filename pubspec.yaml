@@ -69,7 +69,7 @@ dependencies:
 
   # OAuth webview
   webview_flutter: ^4.8.0
-  appauth: ^2.0.2
+  flutter_appauth: ^2.2.1
   crypto: ^3.0.3
 
   # Notifications
