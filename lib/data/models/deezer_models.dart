@@ -216,7 +216,7 @@ class DeezerChart {
   Map<String, dynamic> toJson() => _$DeezerChartToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(genericArgumentFactories: true)
 class DeezerSearchResult<T> {
   final List<T> data;
   final dynamic total;
