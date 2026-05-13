@@ -11,7 +11,6 @@ dependencies:
     sdk: flutter
 
   # Audio playback
-  android_media_session_service: ^1.0.0
   just_audio: ^0.9.39
   audio_service: ^0.18.15
   audio_session: ^0.1.21
