@@ -15,7 +15,9 @@ jobs:
           cache: true
       - uses: android-actions/setup-android@v3
       - name: Regenerate Android project
-        run: flutter create -t app . --platforms android --org com.dreamdeejay
+        run: |
+          rm -rf android/
+          flutter create -t app . --platforms android --org com.dreamdeejay
       - name: Restore asset dirs
         run: |
           mkdir -p assets/sounds assets/images assets/fonts
