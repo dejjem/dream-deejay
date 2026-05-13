@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dream_deejay/main.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audio_service/audio_service.dart';
 import '../../../core/theme/app_theme.dart';

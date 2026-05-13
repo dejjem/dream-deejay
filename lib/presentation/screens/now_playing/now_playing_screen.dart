@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dream_deejay/main.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -85,7 +86,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     // Derive country code from device locale for NewsAPI
     String countryCode = 'us';
     try {
-      final locale = Platform.resolvedLocale ?? Platform.locale;
+      final locale = Platform.locale ?? Platform.locale;
       if (locale.contains('_')) {
         countryCode = locale.split('_').last.toLowerCase();
       } else if (locale.contains('-')) {

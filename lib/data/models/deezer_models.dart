@@ -57,7 +57,7 @@ class DeezerArtist {
   final String? pictureMedium;
   @JsonKey(name: 'picture_xl')
   final String? pictureXl;
-  final int? nb_fan;
+  final int? nbFan;
   @JsonKey(name: 'radio')
   final bool? radio;
   final String? type;
@@ -69,7 +69,7 @@ class DeezerArtist {
     this.picture,
     this.pictureMedium,
     this.pictureXl,
-    this.nbFan,
+    this.nb_fan,
     this.radio,
     this.type,
   });
@@ -174,7 +174,7 @@ class DeezerUser {
   final String? pictureMedium;
   final int? country;
   final String? lang;
-  final bool? is_kid;
+  final bool? isKid;
   final String? type;
 
   DeezerUser({
@@ -187,7 +187,7 @@ class DeezerUser {
     this.pictureMedium,
     this.country,
     this.lang,
-    this.isKid,
+    this.is_kid,
     this.type,
   });
 
