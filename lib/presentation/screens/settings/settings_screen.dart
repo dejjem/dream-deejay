@@ -347,15 +347,17 @@ class _DeezerWebViewAuthState extends State<_DeezerWebViewAuth> {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..loadRequest(Uri.parse(widget.url))
-      ..setNavigationDelegate((NavigationRequest navReq) {
-        final uri = navReq.request.url;
-        if (uri != null && uri.toString().startsWith(ApiConstants.deezerRedirectUri)) {
-          final code = uri.queryParameters['code'];
-          Navigator.of(context).pop(code);
-          return NavigationDecision.prevent;
-        }
-        return NavigationDecision.navigate;
-      };
+      ..setNavigationDelegate(NavigationDelegate(
+        onNavigationRequest: (NavigationRequest navReq) {
+          final uri = navReq.request.url;
+          if (uri != null && uri.toString().startsWith(ApiConstants.deezerRedirectUri)) {
+            final code = uri.queryParameters['code'];
+            Navigator.of(context).pop(code);
+            return NavigationDecision.prevent;
+          }
+          return NavigationDecision.navigate;
+        },
+      ));
   }
 
   @override
