@@ -14,12 +14,6 @@ import 'package:dream_deejay/data/services/audio_handler.dart';
 import 'package:dream_deejay/presentation/screens/providers/providers.dart';
 import 'package:dream_deejay/presentation/screens/widgets/track_tile.dart';
 import 'package:dream_deejay/presentation/screens/widgets/section_header.dart';
-
-
-class HomeScreen extends ConsumerState {
-  List<Map<String, dynamic>> _recommendations = [];
-  List<Map<String, dynamic>> _chartTracks = [];
-  bool _loading = true;
   String? _error;
 
   @override

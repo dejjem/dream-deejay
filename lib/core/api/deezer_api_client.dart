@@ -44,69 +44,69 @@ class DeezerApiClient {
   // Charts
   Future<List<DeezerTrack>> getCharts({int index = 0, int limit = 25}) async {
     final res = await _get<Map<String, dynamic>>('/chart/0/tracks', queryParameters: {'index': index, 'limit': limit});
-    return (res.data['data'] as List).map((e) => DeezerTrack.fromJson(e)).toList();
+    return ((res.data?['data'] ?? []) as List).map((e) => DeezerTrack.fromJson(e)).toList();
   }
 
   // Search
   Future<List<DeezerTrack>> searchTracks(String query, {int index = 0, int limit = 25}) async {
     final res = await _get<Map<String, dynamic>>('/search/track', queryParameters: {'q': query, 'index': index, 'limit': limit});
-    return (res.data['data'] as List).map((e) => DeezerTrack.fromJson(e)).toList();
+    return ((res.data?['data'] ?? []) as List).map((e) => DeezerTrack.fromJson(e)).toList();
   }
 
   Future<List<DeezerArtist>> searchArtists(String query, {int index = 0, int limit = 10}) async {
     final res = await _get<Map<String, dynamic>>('/search/artist', queryParameters: {'q': query, 'index': index, 'limit': limit});
-    return (res.data['data'] as List).map((e) => DeezerArtist.fromJson(e)).toList();
+    return ((res.data?['data'] ?? []) as List).map((e) => DeezerArtist.fromJson(e)).toList();
   }
 
   Future<List<DeezerAlbum>> searchAlbums(String query, {int index = 0, int limit = 10}) async {
     final res = await _get<Map<String, dynamic>>('/search/album', queryParameters: {'q': query, 'index': index, 'limit': limit});
-    return (res.data['data'] as List).map((e) => DeezerAlbum.fromJson(e)).toList();
+    return ((res.data?['data'] ?? []) as List).map((e) => DeezerAlbum.fromJson(e)).toList();
   }
 
   // Artists
   Future<DeezerArtist> getArtist(int artistId) async {
     final res = await _get<Map<String, dynamic>>('/artist/');
-    return DeezerArtist.fromJson(res.data);
+    return DeezerArtist.fromJson(res.data ?? {});
   }
 
   Future<List<DeezerTrack>> getArtistTopTracks(int artistId, {int index = 0, int limit = 10}) async {
     final res = await _get<Map<String, dynamic>>('/artist//top', queryParameters: {'index': index, 'limit': limit});
-    return (res.data['data'] as List).map((e) => DeezerTrack.fromJson(e)).toList();
+    return ((res.data?['data'] ?? []) as List).map((e) => DeezerTrack.fromJson(e)).toList();
   }
 
   // Albums
   Future<DeezerAlbum> getAlbum(int albumId) async {
     final res = await _get<Map<String, dynamic>>('/album/');
-    return DeezerAlbum.fromJson(res.data);
+    return DeezerAlbum.fromJson(res.data ?? {});
   }
 
   Future<List<DeezerTrack>> getAlbumTracks(int albumId) async {
     final res = await _get<Map<String, dynamic>>('/album//tracks');
-    return (res.data['data'] as List).map((e) => DeezerTrack.fromJson(e)).toList();
+    return ((res.data?['data'] ?? []) as List).map((e) => DeezerTrack.fromJson(e)).toList();
   }
 
   // Playlists
   Future<List<DeezerTrack>> getPlaylistTracks(int playlistId) async {
     final res = await _get<Map<String, dynamic>>('/playlist//tracks');
-    return (res.data['data'] as List).map((e) => DeezerTrack.fromJson(e)).toList();
+    return ((res.data?['data'] ?? []) as List).map((e) => DeezerTrack.fromJson(e)).toList();
   }
 
   // User
   Future<DeezerUser> getUser(int userId) async {
     final res = await _get<Map<String, dynamic>>('/user/');
-    return DeezerUser.fromJson(res.data);
+    return DeezerUser.fromJson(res.data ?? {});
   }
 
   // AI Recommendations
   Future<DeezerRecommendations> getRecommendations({int limit = 25}) async {
     final res = await _get<Map<String, dynamic>>('/user/me/r Recommendations', queryParameters: {'limit': limit});
-    return DeezerRecommendations.fromJson(res.data);
+    return DeezerRecommendations.fromJson(res.data ?? {});
   }
 
   // Genres
   Future<List<DeeGenre>> getGenres() async {
     final res = await _get<Map<String, dynamic>>('/genre');
-    return (res.data['data'] as List).map((e) => DeeGenre.fromJson(e)).toList();
+    return ((res.data?['data'] ?? []) as List).map((e) => DeeGenre.fromJson(e)).toList();
   }
 }
 

@@ -135,7 +135,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         client.setAccessToken(token.accessToken);
         final user = await client.getMe();
         await storage.saveDeezerUserId(user.id);
-        ref.read(authStateProvider.invalid);
+        ref.invalidate(authStateProvider);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Logged in as ${user.name}'), backgroundColor: AppTheme.bgCard),
