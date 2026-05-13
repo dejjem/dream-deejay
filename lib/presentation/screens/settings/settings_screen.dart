@@ -349,7 +349,7 @@ class _DeezerWebViewAuthState extends State<_DeezerWebViewAuth> {
       ..loadRequest(Uri.parse(widget.url))
       ..setNavigationDelegate(NavigationDelegate(
         onNavigationRequest: (NavigationRequest navReq) {
-          final uri = navReq.request.url;
+          final uri = navReq.url;
           if (uri != null && uri.toString().startsWith(ApiConstants.deezerRedirectUri)) {
             final code = uri.queryParameters['code'];
             Navigator.of(context).pop(code);
