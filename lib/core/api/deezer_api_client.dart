@@ -164,4 +164,43 @@ class DeeToken {
   });
 
   factory DeeToken.fromJson(Map<String, dynamic> json) => DeeToken(accessToken: json["access_token"] as String, expiresIn: json["expires_in"] as int, tokenType: json["token_type"] as String, userId: json["user_id"] as int?, scope: json["scope"] as String?);
+
+  // Auth - missing stubs for compilation
+  String getAuthorizationUrl(String appId) => 'https://connect.deezer.com/oauth/auth.php?app_id=$appId&redirect_uri=${Uri.encodeComponent('https://deezer.com')}&response_type=token';
+
+  Future<String> exchangeCodeForToken(String code, String appId) async {
+    // TODO: implement real OAuth token exchange
+    return '';
+  }
+
+  Future<DeezerUser> getMe() async {
+    // TODO: get user ID from stored token and call getUser
+    return DeezerUser(id: 0, name: '', email: '');
+  }
+
+  Future<void> clearAccessToken() async {
+    // TODO: clear from secure storage
+  }
+
+  // Recommendations wrapper
+  Future<List<DeezerTrack>> getMyRecommendations({int limit = 25}) async {
+    try {
+      final recs = await getRecommendations(limit: limit);
+      return recs.data;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  // Chart wrapper
+  Future<List<DeezerTrack>> getChart({int index = 0, int limit = 25}) async {
+    return getCharts(index: index, limit: limit);
+  }
+
+  // User playlists
+  Future<List<DeezerAlbum>> getUserPlaylists(int userId) async {
+    // TODO: implement real endpoint
+    return [];
+  }
+
 }
