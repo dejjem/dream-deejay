@@ -4,6 +4,8 @@ plugins {
     id 'kotlin-kapt'
 }
 
+def kotlin_version = '1.9.23'
+
 android {
     namespace 'com.dreamdeejay.app'
     compileSdk 35
