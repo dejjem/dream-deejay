@@ -5,6 +5,16 @@ import 'package:just_audio/just_audio.dart';
 import 'package:dream_deejay/main.dart';
 import 'package:dream_deejay/data/models/deezer_models.dart';
 import 'package:dream_deejay/core/api/deezer_api_client.dart';
+import 'package:get_it/get_it.dart';
+import 'package:dream_deejay/core/utils/secure_storage.dart';
+import 'package:dream_deejay/core/theme/app_theme.dart';
+import 'package:dream_deejay/core/di/injection.dart';
+import 'package:dream_deejay/data/services/local_db_service.dart';
+import 'package:dream_deejay/data/services/audio_handler.dart';
+import 'package:dream_deejay/presentation/screens/providers/providers.dart';
+import 'package:dream_deejay/presentation/screens/widgets/track_tile.dart';
+import 'package:dream_deejay/presentation/screens/widgets/section_header.dart';
+
 
 class HomeScreen extends ConsumerState {
   List<Map<String, dynamic>> _recommendations = [];
@@ -81,7 +91,7 @@ class HomeScreen extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppTheme.bgDeep,
         body: Center(
           child: CircularProgressIndicator(color: AppTheme.accentMagenta),
@@ -96,14 +106,14 @@ class HomeScreen extends ConsumerState {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.music_off, size: 64, color: AppTheme.textSecondary),
-              const SizedBox(height: 16),
-              const Text(
+              Icon(Icons.music_off, size: 64, color: AppTheme.textSecondary),
+              SizedBox(height: 16),
+              Text(
                 'Connect your Deezer account',
                 style: TextStyle(color: AppTheme.textPrimary, fontSize: 20),
               ),
-              const SizedBox(height: 8),
-              const Text(
+              SizedBox(height: 8),
+              Text(
                 'Go to Settings to sign in',
                 style: TextStyle(color: AppTheme.textSecondary),
               ),
@@ -116,10 +126,10 @@ class HomeScreen extends ConsumerState {
     return Scaffold(
       backgroundColor: AppTheme.bgDeep,
       appBar: AppBar(
-        title: const Text('Dream DeeJay'),
+        title: Text('Dream DeeJay'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(Icons.refresh),
             onPressed: _loadData,
           ),
         ],
@@ -131,7 +141,7 @@ class HomeScreen extends ConsumerState {
           padding: const EdgeInsets.only(bottom: 120),
           children: [
             if (_recommendations.isNotEmpty) ...[
-              const SectionHeader(title: 'Recommended for You'),
+              SectionHeader(title: 'Recommended for You'),
               SizedBox(
                 height: 220,
                 child: ListView.builder(
@@ -144,10 +154,10 @@ class HomeScreen extends ConsumerState {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
             ],
             if (_chartTracks.isNotEmpty) ...[
-              const SectionHeader(title: 'Top Charts'),
+              SectionHeader(title: 'Top Charts'),
               ...List.generate(
                 _chartTracks.length > 10 ? 10 : _chartTracks.length,
                 (i) => TrackTile(
@@ -192,7 +202,7 @@ class HomeScreen extends ConsumerState {
       final alreadyDownloaded = await db.isDownloaded(id);
       if (alreadyDownloaded) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Already downloaded'),
+          SnackBar(content: Text('Already downloaded'),
               backgroundColor: AppTheme.bgCard, duration: Duration(seconds: 1)),
         );
         return;
@@ -201,13 +211,13 @@ class HomeScreen extends ConsumerState {
       if (path != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Downloaded: ${track['title']}'),
-              backgroundColor: AppTheme.bgCard, duration: const Duration(seconds: 2)),
+              backgroundColor: AppTheme.bgCard, duration: Duration(seconds: 2)),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Download failed: $e'),
-            backgroundColor: AppTheme.bgCard, duration: const Duration(seconds: 2)),
+            backgroundColor: AppTheme.bgCard, duration: Duration(seconds: 2)),
       );
     }
   }
@@ -217,7 +227,7 @@ class _AlbumCard extends StatelessWidget {
   final Map<String, dynamic> item;
   final VoidCallback onTap;
 
-  const _AlbumCard({required this.item, required this.onTap});
+  _AlbumCard({required this.item, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -241,27 +251,27 @@ class _AlbumCard extends StatelessWidget {
                         width: 150,
                         height: 150,
                         color: AppTheme.bgCard,
-                        child: const Icon(Icons.album, size: 48, color: AppTheme.textSecondary),
+                        child: Icon(Icons.album, size: 48, color: AppTheme.textSecondary),
                       ),
                     )
                   : Container(
                       width: 150,
                       height: 150,
                       color: AppTheme.bgCard,
-                      child: const Icon(Icons.album, size: 48, color: AppTheme.textSecondary),
+                      child: Icon(Icons.album, size: 48, color: AppTheme.textSecondary),
                     ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               item['title'] ?? 'Unknown',
-              style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13),
+              style: TextStyle(color: AppTheme.textPrimary, fontSize: 13),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2),
             Text(
               item['artist'] ?? 'Unknown',
-              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11),
+              style: TextStyle(color: AppTheme.textSecondary, fontSize: 11),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
