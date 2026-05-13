@@ -165,7 +165,7 @@ class DeeJayAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   @override
-  Future<Action> onCustomAction(String action, [Map<String, dynamic>? extras]) async {
+  Future<void> onCustomAction(String action, [Map<String, dynamic>? extras]) async {
     if (action == 'reorderQueue') {
       final from = extras?['from'] as int?;
       final to = extras?['to'] as int?;
@@ -177,7 +177,7 @@ class DeeJayAudioHandler extends BaseAudioHandler with SeekHandler {
       queue.add(_queue);
       await _player.stop();
     }
-    return super.onCustomAction(action, extras);
+    return;
   }
 
   Future<void> _reorderQueue(int from, int to) async {

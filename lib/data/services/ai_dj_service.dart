@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
-import '../constants/api_constants.dart';
+import '../core/constants/api_constants.dart';
 import '../../core/utils/secure_storage.dart';
 
 enum TtsState { playing, stopped, paused }
@@ -46,12 +46,6 @@ class AiDjService {
       IosTextToSpeechAudioMode.voicePrompt,
     );
 
-    _tts.setStateHandler((state) {
-      _ttsState = TtsState.values.firstWhere(
-        (s) => s.name == state,
-        orElse: () => TtsState.stopped,
-      );
-    });
 
     _isInitialized = true;
   }
@@ -137,10 +131,7 @@ class AiDjService {
     if (permission == LocationPermission.deniedForever) return null;
 
     return Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.low,
-        timeLimit: Duration(seconds: 15),
-      ),
+      desiredAccuracy: LocationAccuracy.low,
     );
   }
 

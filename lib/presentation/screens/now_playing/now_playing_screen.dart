@@ -39,13 +39,13 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
 
   void _setupListeners() {
     final handler = audioHandler;
-    _positionSub = handler.positionStream.listen((pos) {
+    _positionSub = (audioHandler as dynamic).positionStream.listen((pos) {
       if (mounted) setState(() => _position = pos);
     });
-    _durationSub = handler.durationStream.listen((dur) {
+    _durationSub = (audioHandler as dynamic).durationStream.listen((dur) {
       if (mounted && dur != null) setState(() => _duration = dur);
     });
-    _playingSub = handler.playerStateStream.listen((state) {
+    _playingSub = (audioHandler as dynamic).playerStateStream.listen((state) {
       if (mounted) setState(() => _isPlaying = state.playing);
     });
   }

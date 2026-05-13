@@ -7,6 +7,8 @@ import '../../../core/api/deezer_api_client.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../../core/utils/secure_storage.dart';
 import '../../providers/providers.dart';
+import 'package:dream_deejay/main.dart';
+import 'package:dream_deejay/core/api/deezer_api_client.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -345,7 +347,7 @@ class _DeezerWebViewAuthState extends State<_DeezerWebViewAuth> {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..loadRequest(Uri.parse(widget.url))
-      ..navigationDelegate = (navReq) {
+      ..setNavigationDelegate((NavigationRequest navReq) {
         final uri = navReq.request.url;
         if (uri != null && uri.toString().startsWith(ApiConstants.deezerRedirectUri)) {
           final code = uri.queryParameters['code'];

@@ -130,7 +130,6 @@ class DeeGenre {
   DeeGenre({required this.id, required this.name, this.picture});
 
   factory DeeGenre.fromJson(Map<String, dynamic> json) => DeeGenre(id: json["id"], name: json["name"], picture: json["picture"]);
-  Map<String, dynamic> toJson() => {"id": id, "name": name, if (picture != null) "picture": picture!};
 }
 
 class DeeAuthToken {
@@ -146,8 +145,7 @@ class DeeAuthToken {
     required this.userId,
   });
 
-  factory DeeAuthToken.fromJson(Map<String, dynamic> json) => DeeAuthToken(accessToken: json["access_token"], expires: json["expires"], tokenType: json["token_type"], userId: json["userId"]);
-  Map<String, dynamic> toJson() => {"id": id, "name": name, if (picture != null) "picture": picture!};
+  factory DeeAuthToken.fromJson(Map<String, dynamic> json) => DeeAuthToken(accessToken: json["access_token"] as String, expires: json["expires"] as int, tokenType: json["token_type"] as String, userId: json["user_id"] as int);
 }
 
 class DeeToken {
@@ -165,6 +163,5 @@ class DeeToken {
     this.scope,
   });
 
-  factory DeeToken.fromJson(Map<String, dynamic> json) => DeeToken(accessToken: json["access_token"], expiresIn: json["expiresIn"], tokenType: json["token_type"], userId: json["userId"], scope: json["scope"]);
-  Map<String, dynamic> toJson() => {"id": id, "name": name, if (picture != null) "picture": picture!};
+  factory DeeToken.fromJson(Map<String, dynamic> json) => DeeToken(accessToken: json["access_token"] as String, expiresIn: json["expires_in"] as int, tokenType: json["token_type"] as String, userId: json["user_id"] as int?, scope: json["scope"] as String?);
 }

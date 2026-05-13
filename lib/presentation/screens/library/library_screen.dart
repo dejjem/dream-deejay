@@ -8,6 +8,8 @@ import '../../../core/api/deezer_api_client.dart';
 import '../../../core/utils/secure_storage.dart';
 import '../../../data/services/local_db_service.dart';
 import '../../providers/providers.dart';
+import 'package:dream_deejay/data/models/deezer_models.dart';
+import 'package:dream_deejay/core/api/deezer_api_client.dart';
 
 class LibraryScreen extends ConsumerWidget {
   const LibraryScreen({super.key});

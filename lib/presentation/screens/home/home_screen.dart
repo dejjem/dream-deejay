@@ -9,6 +9,9 @@ import '../../data/services/local_db_service.dart';
 import '../providers/providers.dart';
 import '../widgets/track_tile.dart';
 import '../widgets/section_header.dart';
+import 'package:dream_deejay/main.dart';
+import 'package:dream_deejay/data/models/deezer_models.dart';
+import 'package:dream_deejay/core/api/deezer_api_client.dart';
 
 class HomeScreen extends ConsumerState {
   List<Map<String, dynamic>> _recommendations = [];

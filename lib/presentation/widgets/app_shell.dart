@@ -7,6 +7,7 @@ import '../screens/search/search_screen.dart';
 import '../screens/queue/queue_screen.dart';
 import '../screens/library/library_screen.dart';
 import '../screens/now_playing/now_playing_screen.dart';
+import 'package:dream_deejay/main.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
@@ -16,11 +17,11 @@ class AppShell extends ConsumerStatefulWidget {
 }
 
 class _AppShellState extends ConsumerState<AppShell> {
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    SearchScreen(),
-    QueueScreen(),
-    LibraryScreen(),
+  final List<Widget> _screens = [
+    const HomeScreen(),
+    const SearchScreen(),
+    const QueueScreen(),
+    const LibraryScreen(),
   ];
 
   @override

@@ -69,7 +69,7 @@ class DeezerArtist {
     this.picture,
     this.pictureMedium,
     this.pictureXl,
-    this.nb_fan,
+    this.nbFan,
     this.radio,
     this.type,
   });
@@ -187,7 +187,7 @@ class DeezerUser {
     this.pictureMedium,
     this.country,
     this.lang,
-    this.is_kid,
+    this.isKid,
     this.type,
   });
 
@@ -214,21 +214,6 @@ class DeezerChart {
       _$DeezerChartFromJson(json);
 
   Map<String, dynamic> toJson() => _$DeezerChartToJson(this);
-}
-
-@JsonSerializable(genericArgumentFactories: true)
-class DeezerSearchResult<T> {
-  final List<T> data;
-  final dynamic total;
-  @JsonKey(name: 'next')
-  final String? next;
-
-  DeezerSearchResult({required this.data, this.total, this.next});
-
-  factory DeezerSearchResult.fromJson(Map<String, dynamic> json) =>
-      _$DeezerSearchResultFromJson(json);
-
-  Map<String, dynamic> toJson() => _$DeezerSearchResultToJson(this);
 }
 
 @JsonSerializable()
