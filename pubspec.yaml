@@ -75,9 +75,6 @@ dependencies:
   # Notifications
   flutter_local_notifications: ^17.2.2
 
-  # Drag/drop reorderable lists
-  reorderable_list_view: ^2.0.0
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
