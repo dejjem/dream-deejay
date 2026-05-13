@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
 import '../providers/providers.dart';
-import 'home/home_screen.dart';
-import 'search/search_screen.dart';
-import 'queue/queue_screen.dart';
-import 'library/library_screen.dart';
-import 'now_playing/now_playing_screen.dart';
+import '../screens/home/home_screen.dart';
+import '../screens/search/search_screen.dart';
+import '../screens/queue/queue_screen.dart';
+import '../screens/library/library_screen.dart';
+import '../screens/now_playing/now_playing_screen.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});

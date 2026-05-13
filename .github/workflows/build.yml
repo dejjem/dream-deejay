@@ -22,6 +22,37 @@ jobs:
         run: |
           mkdir -p assets/sounds assets/images assets/fonts
           touch assets/fonts/.gitkeep
+      - name: Fix import paths
+        run: |
+          # Fix app_shell.dart
+          sed -i "s|import 'home/home_screen.dart';|import '../screens/home/home_screen.dart';|" lib/presentation/widgets/app_shell.dart
+          sed -i "s|import 'search/search_screen.dart';|import '../screens/search/search_screen.dart';|" lib/presentation/widgets/app_shell.dart
+          sed -i "s|import 'queue/queue_screen.dart';|import '../screens/queue/queue_screen.dart';|" lib/presentation/widgets/app_shell.dart
+          sed -i "s|import 'library/library_screen.dart';|import '../screens/library/library_screen.dart';|" lib/presentation/widgets/app_shell.dart
+          sed -i "s|import 'now_playing/now_playing_screen.dart';|import '../screens/now_playing/now_playing_screen.dart';|" lib/presentation/widgets/app_shell.dart
+          # Fix ai_dj_service.dart
+          sed -i "s|import 'secure_storage.dart';|import '../../core/utils/secure_storage.dart';|" lib/data/services/ai_dj_service.dart
+          # Fix injection.dart
+          sed -i "s|import 'secure_storage.dart';|import '../utils/secure_storage.dart';|" lib/core/di/injection.dart
+          # Create missing app_colors.dart
+          cat > lib/core/theme/app_colors.dart << 'DART'
+import 'package:flutter/material.dart';
+
+class AppColors {
+  AppColors._();
+  static const Color primary = Color(0xFF1DB954);
+  static const Color secondary = Color(0xFF191414);
+  static const Color surface = Color(0xFF121212);
+  static const Color background = Color(0xFF000000);
+  static const Color onSurface = Color(0xFFFFFFFF);
+  static const Color onBackground = Color(0xFFFFFFFF);
+  static const Color error = Color(0xFFE91429);
+  static const Color grey = Color(0xFF535353);
+  static const Color lightGrey = Color(0xFFB3B3B3);
+}
+DART
+      - name: Generate code
+        run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Build APK
         run: flutter build apk --release
       - uses: actions/upload-artifact@v4

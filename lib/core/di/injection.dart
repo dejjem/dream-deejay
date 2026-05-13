@@ -3,7 +3,7 @@ import '../api/deezer_api_client.dart';
 import '../../data/services/audio_handler.dart';
 import '../../data/services/ai_dj_service.dart';
 import '../../data/services/local_db_service.dart';
-import 'secure_storage.dart';
+import '../utils/secure_storage.dart';
 
 final getIt = GetIt.instance;
 
