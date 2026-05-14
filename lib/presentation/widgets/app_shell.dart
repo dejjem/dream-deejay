@@ -18,9 +18,9 @@ class AppShell extends ConsumerStatefulWidget {
 
 class _AppShellState extends ConsumerState<AppShell> {
   final List<Widget> _screens = [
-    const HomeScreen(),
-    const SearchScreen(),
-    const QueueScreen(),
+    HomeScreen(),
+    SearchScreen(),
+    QueueScreen(),
     const LibraryScreen(),
   ];
 
@@ -77,7 +77,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   void _openNowPlaying(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => const NowPlayingScreen(),
+        builder: (_) => NowPlayingScreen(),
         fullscreenDialog: true,
       ),
     );

@@ -186,7 +186,7 @@ class DeeToken {
   Future<List<DeezerTrack>> getMyRecommendations({int limit = 25}) async {
     try {
       final recs = await getCharts(limit: limit);
-      return recs.data;
+      return recs;
     } catch (_) {
       return [];
     }
