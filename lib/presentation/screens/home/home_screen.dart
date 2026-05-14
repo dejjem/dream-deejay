@@ -11,9 +11,10 @@ import 'package:dream_deejay/core/theme/app_theme.dart';
 import 'package:dream_deejay/core/di/injection.dart';
 import 'package:dream_deejay/data/services/local_db_service.dart';
 import 'package:dream_deejay/data/services/audio_handler.dart';
-import 'package:dream_deejay/presentation/screens/providers/providers.dart';
-import 'package:dream_deejay/presentation/screens/widgets/track_tile.dart';
-import 'package:dream_deejay/presentation/screens/widgets/section_header.dart';
+import 'package:dream_deejay/presentation/providers/providers.dart';
+import 'package:dream_deejay/presentation/widgets/track_tile.dart';
+import 'package:dream_deejay/presentation/widgets/section_header.dart';
+class HomeScreen extends ConsumerState {
   String? _error;
 
   @override

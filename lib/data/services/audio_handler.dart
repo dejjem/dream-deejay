@@ -210,5 +210,5 @@ class DeeJayAudioHandler extends BaseAudioHandler with SeekHandler {
   int get currentIndex => _currentIndex;
   Stream<Duration> get positionStream => _player.positionStream;
   Stream<Duration?> get durationStream => _player.durationStream;
-  AudioPlayerState get playerState => _player.playerState;
+  PlayerState get playerState => _player.playerState;
 }

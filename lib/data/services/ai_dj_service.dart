@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
-import '../core/constants/api_constants.dart';
+import '../../core/constants/api_constants.dart';
 import '../../core/utils/secure_storage.dart';
 
 enum TtsState { playing, stopped, paused }
