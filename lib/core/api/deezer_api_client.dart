@@ -47,7 +47,7 @@ class DeezerApiClient {
   }
 
   /// Step 2: Exchange authorization code for access token
-  Future<DeezerAuthToken> exchangeCodeForToken(
+  Future<DeeAuthToken> exchangeCodeForToken(
     String appId,
     String appSecret,
     String code,
@@ -61,11 +61,11 @@ class DeezerApiClient {
         'output': 'json',
       },
     );
-    return DeezerAuthToken.fromJson(resp.data);
+    return DeeAuthToken.fromJson(resp.data);
   }
 
   /// Refresh token (Deezer long-lived tokens)
-  Future<DeezerAuthToken> refreshToken(
+  Future<DeeAuthToken> refreshToken(
     String appId,
     String appSecret,
     String refreshToken,
@@ -79,7 +79,7 @@ class DeezerApiClient {
         'output': 'json',
       },
     );
-    return DeezerAuthToken.fromJson(resp.data);
+    return DeeAuthToken.fromJson(resp.data);
   }
 
   // ---- Track ----

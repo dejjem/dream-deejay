@@ -73,7 +73,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
 
     ref.read(settingsProvider.notifier).updateDjSettings(
-      autoTrigger: _autoTriggerDj,
+      autoTriggerDj: _autoTriggerDj,
       includeWeather: _includeWeather,
       includeNews: _includeNews,
     );
@@ -85,7 +85,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       newsApiKey: _newsApiController.text.trim(),
       llmApiKey: _llmApiController.text.trim(),
       useGemini: _useGemini,
-      autoTrigger: _autoTriggerDj,
+      autoTriggerDj: _autoTriggerDj,
       includeWeather: _includeWeather,
       includeNews: _includeNews,
     );

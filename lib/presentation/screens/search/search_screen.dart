@@ -5,6 +5,7 @@ import 'package:dream_deejay/main.dart';
 import 'package:dream_deejay/data/models/deezer_models.dart';
 import 'package:dream_deejay/core/api/deezer_api_client.dart';
 import 'package:dream_deejay/core/utils/secure_storage.dart';
+import 'package:get_it/get_it.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});

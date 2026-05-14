@@ -15,6 +15,7 @@ import 'package:dream_deejay/presentation/providers/providers.dart';
 import 'package:dream_deejay/presentation/widgets/track_tile.dart';
 import 'package:dream_deejay/presentation/widgets/section_header.dart';
 class HomeScreen extends ConsumerState {
+  AudioHandler get audioHandler => GetIt.I<AudioHandler>();
   List<Map<String, dynamic>> _recommendations = [];
   List<Map<String, dynamic>> _chartTracks = [];
   bool _loading = true;
