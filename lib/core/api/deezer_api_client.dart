@@ -130,6 +130,23 @@ class DeeGenre {
   DeeGenre({required this.id, required this.name, this.picture});
 
   factory DeeGenre.fromJson(Map<String, dynamic> json) => DeeGenre(id: json["id"], name: json["name"], picture: json["picture"]);
+  }
+
+  // Recommendations wrapper
+  Future<List<DeezerTrack>> getMyRecommendations({int limit = 25}) async {
+    try {
+      final recs = await getCharts(limit: limit);
+      return recs;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  // Chart wrapper
+  Future<List<DeezerTrack>> getChart({int index = 0, int limit = 25}) async {
+    return getCharts(index: index, limit: limit);
+  }
+
 }
 
 class DeeAuthToken {
@@ -180,22 +197,6 @@ class DeeToken {
 
   Future<void> clearAccessToken() async {
     // TODO: clear from secure storage
-  }
-
-  // Recommendations wrapper
-  Future<List<DeezerTrack>> getMyRecommendations({int limit = 25}) async {
-    try {
-      final recs = await getCharts(limit: limit);
-      return recs;
-    } catch (_) {
-      return [];
-    }
-  }
-
-  // Chart wrapper
-  Future<List<DeezerTrack>> getChart({int index = 0, int limit = 25}) async {
-    return getCharts(index: index, limit: limit);
-  }
 
   // User playlists
   Future<List<DeezerAlbum>> getUserPlaylists(int userId) async {

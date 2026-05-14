@@ -28,7 +28,7 @@ jobs:
       - name: Generate code
         run: |
           flutter clean
-          flutter pub run build_runner build --delete-conflicting-outputs
+          dart run build_runner build --delete-conflicting-outputs
       - name: Build APK
         run: flutter build apk --release
       - uses: actions/upload-artifact@v4
