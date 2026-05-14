@@ -221,11 +221,7 @@ class DeeToken {
 
   Future<void> clearAccessToken() async {
     // TODO: clear from secure storage
-
-  // User playlists
-  Future<List<DeezerAlbum>> getUserPlaylists(int userId) async {
-    // TODO: implement real endpoint
-    return [];
   }
+
 
 }
