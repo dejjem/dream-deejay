@@ -26,127 +26,130 @@ class DeezerApiClient {
     _accessToken = token;
   }
 
-  Future<Response<T>> _get<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-  }) {
-    return _dio.get<T>(
-      path,
+  Future<void> clearAccessToken() async {
+    _accessToken = null;
+  }
+
+  String? get accessToken => _accessToken;
+
+  // ---- OAuth ----
+
+  /// Step 1: Generate the Deezer authorization URL
+  String getAuthorizationUrl(String appId) {
+    final params = {
+      'app_id': appId,
+      'redirect_uri': ApiConstants.deezerRedirectUri,
+      'perms': 'basic_access,email,offline_access',
+    };
+    final query = params.entries.map((e) => '${e.key}=${e.value}').join('&');
+    return '${ApiConstants.deezerAuthBase}/oauth2/auth.php?$query';
+  }
+
+  /// Step 2: Exchange authorization code for access token
+  Future<DeezerAuthToken> exchangeCodeForToken(
+    String appId,
+    String appSecret,
+    String code,
+  ) async {
+    final resp = await _dio.get(
+      '${ApiConstants.deezerAuthBase}/oauth2/access_token.php',
       queryParameters: {
-        ...?queryParameters,
-        if (_accessToken != null) 'access_token': _accessToken,
+        'app_id': appId,
+        'secret': appSecret,
+        'code': code,
+        'output': 'json',
       },
-      options: options,
     );
+    return DeezerAuthToken.fromJson(resp.data);
   }
 
-  // Charts
-  Future<List<DeezerTrack>> getCharts({int index = 0, int limit = 25}) async {
-    final res = await _get<Map<String, dynamic>>('/chart/0/tracks', queryParameters: {'index': index, 'limit': limit});
-    return ((res.data?['data'] ?? []) as List).map((e) => DeezerTrack.fromJson(e)).toList();
+  /// Refresh token (Deezer long-lived tokens)
+  Future<DeezerAuthToken> refreshToken(
+    String appId,
+    String appSecret,
+    String refreshToken,
+  ) async {
+    final resp = await _dio.get(
+      '${ApiConstants.deezerAuthBase}/oauth2/access_token.php',
+      queryParameters: {
+        'app_id': appId,
+        'secret': appSecret,
+        'refresh_token': refreshToken,
+        'output': 'json',
+      },
+    );
+    return DeezerAuthToken.fromJson(resp.data);
   }
 
-  // Search
-  Future<List<DeezerTrack>> searchTracks(String query, {int index = 0, int limit = 25}) async {
-    final res = await _get<Map<String, dynamic>>('/search/track', queryParameters: {'q': query, 'index': index, 'limit': limit});
-    return ((res.data?['data'] ?? []) as List).map((e) => DeezerTrack.fromJson(e)).toList();
+  // ---- Track ----
+
+  Future<DeezerTrack> getTrack(int id) async {
+    final resp = await _dio.get('/track/$id');
+    return DeezerTrack.fromJson(resp.data);
   }
 
-  Future<List<DeezerArtist>> searchArtists(String query, {int index = 0, int limit = 10}) async {
-    final res = await _get<Map<String, dynamic>>('/search/artist', queryParameters: {'q': query, 'index': index, 'limit': limit});
-    return ((res.data?['data'] ?? []) as List).map((e) => DeezerArtist.fromJson(e)).toList();
+  // ---- Artist ----
+
+  Future<DeezerArtist> getArtist(int id) async {
+    final resp = await _dio.get('/artist/$id');
+    return DeezerArtist.fromJson(resp.data);
   }
 
-  Future<List<DeezerAlbum>> searchAlbums(String query, {int index = 0, int limit = 10}) async {
-    final res = await _get<Map<String, dynamic>>('/search/album', queryParameters: {'q': query, 'index': index, 'limit': limit});
-    return ((res.data?['data'] ?? []) as List).map((e) => DeezerAlbum.fromJson(e)).toList();
-  }
-
-  // Artists
-  Future<DeezerArtist> getArtist(int artistId) async {
-    final res = await _get<Map<String, dynamic>>('/artist/');
-    return DeezerArtist.fromJson(res.data ?? {});
-  }
-
-  Future<List<DeezerTrack>> getArtistTopTracks(int artistId, {int index = 0, int limit = 10}) async {
-    final res = await _get<Map<String, dynamic>>('/artist//top', queryParameters: {'index': index, 'limit': limit});
-    return ((res.data?['data'] ?? []) as List).map((e) => DeezerTrack.fromJson(e)).toList();
-  }
-
-  // Albums
-  Future<DeezerAlbum> getAlbum(int albumId) async {
-    final res = await _get<Map<String, dynamic>>('/album/');
-    return DeezerAlbum.fromJson(res.data ?? {});
-  }
-
-  Future<List<DeezerTrack>> getAlbumTracks(int albumId) async {
-    final res = await _get<Map<String, dynamic>>('/album//tracks');
-    return ((res.data?['data'] ?? []) as List).map((e) => DeezerTrack.fromJson(e)).toList();
-  }
-
-  // Playlists
-  Future<List<DeezerTrack>> getPlaylistTracks(int playlistId) async {
-    final res = await _get<Map<String, dynamic>>('/playlist//tracks');
-    return ((res.data?['data'] ?? []) as List).map((e) => DeezerTrack.fromJson(e)).toList();
-  }
-
-  // User
-  Future<DeezerUser> getUser(int userId) async {
-    final res = await _get<Map<String, dynamic>>('/user/');
-    return DeezerUser.fromJson(res.data ?? {});
-  }
-
-  // AI Recommendations
-  Future<DeezerRecommendations> getRecommendations({int limit = 25}) async {
-    final res = await _get<Map<String, dynamic>>('/user/me/r Recommendations', queryParameters: {'limit': limit});
-    return DeezerRecommendations.fromJson(res.data ?? {});
-  }
-
-  // Genres
-  Future<List<DeeGenre>> getGenres() async {
-    final res = await _get<Map<String, dynamic>>('/genre');
-    return ((res.data?['data'] ?? []) as List).map((e) => DeeGenre.fromJson(e)).toList();
-  }
-}
-
-class _AuthInterceptor extends Interceptor {
-  final DeezerApiClient _client;
-
-  _AuthInterceptor(this._client);
-
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // Token is added via query param in _get
-    handler.next(options);
-  }
-}
-
-
-  // ---- User ----
-  Future<DeezerUser> getMe() async {
-    final resp = await _dio.get('/user/me');
-    return DeezerUser.fromJson(resp.data);
-  }
-
-  Future<List<DeezerTrack>> getMyRecommendations({int limit = 25}) async {
-    try {
-      final resp = await _dio.get('/user/me/recommendations/tracks',
-          queryParameters: {'limit': limit});
-      final data = resp.data['data'] as List;
-      return data.map((e) => DeezerTrack.fromJson(e)).toList();
-    } catch (_) {
-      return [];
-    }
-  }
-
-  Future<List<DeezerPlaylist>> getUserPlaylists(int userId) async {
-    final resp = await _dio.get('/user/$userId/playlists');
+  Future<List<DeezerTrack>> getArtistTop(int id, {int limit = 10}) async {
+    final resp = await _dio.get('/artist/$id/top', queryParameters: {
+      'limit': limit,
+    });
     final data = resp.data['data'] as List;
-    return data.map((e) => DeezerPlaylist.fromJson(e)).toList();
+    return data.map((e) => DeezerTrack.fromJson(e)).toList();
+  }
+
+  // ---- Album ----
+
+  Future<DeezerAlbum> getAlbum(int id) async {
+    final resp = await _dio.get('/album/$id');
+    return DeezerAlbum.fromJson(resp.data);
+  }
+
+  Future<List<DeezerTrack>> getAlbumTracks(int id) async {
+    final resp = await _dio.get('/album/$id/tracks');
+    final data = resp.data['data'] as List;
+    return data.map((e) => DeezerTrack.fromJson(e)).toList();
+  }
+
+  // ---- Search ----
+
+  Future<List<DeezerTrack>> searchTracks(String query,
+      {int index = 0, int limit = 25}) async {
+    final resp = await _dio.get(
+      '/search/track',
+      queryParameters: {'q': query, 'index': index, 'limit': limit},
+    );
+    final data = resp.data['data'] as List;
+    return data.map((e) => DeezerTrack.fromJson(e)).toList();
+  }
+
+  Future<List<DeezerAlbum>> searchAlbums(String query,
+      {int index = 0, int limit = 25}) async {
+    final resp = await _dio.get(
+      '/search/album',
+      queryParameters: {'q': query, 'index': index, 'limit': limit},
+    );
+    final data = resp.data['data'] as List;
+    return data.map((e) => DeezerAlbum.fromJson(e)).toList();
+  }
+
+  Future<List<DeezerArtist>> searchArtists(String query,
+      {int index = 0, int limit = 25}) async {
+    final resp = await _dio.get(
+      '/search/artist',
+      queryParameters: {'q': query, 'index': index, 'limit': limit},
+    );
+    final data = resp.data['data'] as List;
+    return data.map((e) => DeezerArtist.fromJson(e)).toList();
   }
 
   // ---- Chart ----
+
   Future<DeezerChart> getChart({int index = 0, int limit = 25}) async {
     final resp = await _dio.get('/chart/0', queryParameters: {
       'index': index,
@@ -155,12 +158,160 @@ class _AuthInterceptor extends Interceptor {
     return DeezerChart.fromJson(resp.data);
   }
 
-  // Token management
-  Future<void> clearAccessToken() async {
-    // TODO: clear from secure storage
+  // ---- User ----
+
+  Future<DeezerUser> getMe() async {
+    final resp = await _dio.get('/user/me');
+    return DeezerUser.fromJson(resp.data);
   }
 
+  Future<List<DeezerTrack>> getMyRecommendations({int limit = 25}) async {
+    final resp = await _dio.get('/user/me/recommendations/tracks',
+        queryParameters: {'limit': limit});
+    final data = resp.data['data'] as List;
+    return data.map((e) => DeezerTrack.fromJson(e)).toList();
+  }
 
+  // ---- Playlist ----
+
+  Future<List<DeezerPlaylist>> getUserPlaylists(int userId) async {
+    final resp = await _dio.get('/user/$userId/playlists');
+    final data = resp.data['data'] as List;
+    return data.map((e) => DeezerPlaylist.fromJson(e)).toList();
+  }
+
+  Future<DeezerPlaylist> getPlaylist(int id) async {
+    final resp = await _dio.get('/playlist/$id');
+    return DeezerPlaylist.fromJson(resp.data);
+  }
+
+  Future<List<DeezerTrack>> getPlaylistTracks(int id) async {
+    final resp = await _dio.get('/playlist/$id/tracks');
+    final data = resp.data['data'] as List;
+    return data.map((e) => DeezerTrack.fromJson(e)).toList();
+  }
+
+  // ---- Genre ----
+
+  Future<List<DeezerGenre>> getGenres() async {
+    final resp = await _dio.get('/genre');
+    final data = resp.data['data'] as List;
+    return data.map((e) => DeezerGenre.fromJson(e)).toList();
+  }
+
+  Future<List<DeezerArtist>> getGenreArtists(int genreId,
+      {int index = 0, int limit = 25}) async {
+    final resp = await _dio.get('/genre/$genreId/artists',
+        queryParameters: {'index': index, 'limit': limit});
+    final data = resp.data['data'] as List;
+    return data.map((e) => DeezerArtist.fromJson(e)).toList();
+  }
+
+  // ---- User Library ----
+
+  Future<List<DeezerTrack>> getUserFavorites(int userId) async {
+    final resp = await _dio.get('/user/$userId/albums');
+    final data = resp.data['data'] as List;
+    // Albums -> flatten tracks
+    List<DeezerTrack> tracks = [];
+    for (var album in data) {
+      try {
+        final albumId = album['id'] as int;
+        final albumTracks = await getAlbumTracks(albumId);
+        tracks.addAll(albumTracks);
+      } catch (_) {}
+    }
+    return tracks;
+  }
+
+  // ---- Stream URL ----
+
+  /// Get the stream URL for a track (requires Premium+ token)
+  String? getStreamUrl(int trackId) {
+    final token = _accessToken;
+    if (token == null) return null;
+    // Deezer stream URL is generated from the API token
+    return 'https://www.deezer.com/plugins/taas?API_TOKEN=$token&track_id=$trackId';
+  }
+}
+
+class DeeAuthInterceptor extends Interceptor {
+  final DeezerApiClient _client;
+
+  DeeAuthInterceptor(this._client);
+
+  @override
+  void onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
+    final token = _client.accessToken;
+    if (token != null) {
+      options.queryParameters['access_token'] = token;
+    }
+    handler.next(options);
+  }
+}
+
+// Use the same class defined below
+class _AuthInterceptor extends Interceptor {
+  final DeezerApiClient _client;
+
+  _AuthInterceptor(this._client);
+
+  @override
+  void onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
+    final token = _client.accessToken;
+    if (token != null) {
+      options.queryParameters['access_token'] = token;
+    }
+    handler.next(options);
+  }
+}
+
+class DeeToken {
+  final String accessToken;
+  final String? refreshToken;
+  final int expiresIn;
+
+  DeeToken({
+    required this.accessToken,
+    this.refreshToken,
+    required this.expiresIn,
+  });
+
+  factory DeeToken.fromJson(Map<String, dynamic> json) {
+    return DeeToken(
+      accessToken: json['access_token'] as String,
+      refreshToken: json['refresh_token'] as String?,
+      expiresIn: json['expires_in'] as int? ?? 0,
+    );
+  }
+}
+
+class DeeAuthToken {
+  final String tokenType;
+  final String accessToken;
+  final String? refreshToken;
+  final int expiresIn;
+
+  DeeAuthToken({
+    required this.tokenType,
+    required this.accessToken,
+    this.refreshToken,
+    required this.expiresIn,
+  });
+
+  factory DeeAuthToken.fromJson(Map<String, dynamic> json) {
+    return DeeAuthToken(
+      tokenType: json['token_type'] as String? ?? 'bearer',
+      accessToken: json['access_token'] as String,
+      refreshToken: json['refresh_token'] as String?,
+      expiresIn: json['expires_in'] as int? ?? 0,
+    );
+  }
+}
+
+@JsonSerializable()
 class DeeGenre {
   final int id;
   final String name;
@@ -168,60 +319,11 @@ class DeeGenre {
 
   DeeGenre({required this.id, required this.name, this.picture});
 
-  factory DeeGenre.fromJson(Map<String, dynamic> json) => DeeGenre(id: json["id"], name: json["name"], picture: json["picture"]);
-  }
+  factory DeeGenre.fromJson(Map<String, dynamic> json) =>
+      _$DeeGenreFromJson(json);
 
-
-
-class DeeAuthToken {
-  final String accessToken;
-  final int expires;
-  final String tokenType;
-  final int userId;
-
-  DeeAuthToken({
-    required this.accessToken,
-    required this.expires,
-    required this.tokenType,
-    required this.userId,
-  });
-
-  factory DeeAuthToken.fromJson(Map<String, dynamic> json) => DeeAuthToken(accessToken: json["access_token"] as String, expires: json["expires"] as int, tokenType: json["token_type"] as String, userId: json["user_id"] as int);
+  Map<String, dynamic> toJson() => _$DeeGenreToJson(this);
 }
 
-class DeeToken {
-  final String accessToken;
-  final int expiresIn;
-  final String tokenType;
-  final int? userId;
-  final String? scope;
-
-  DeeToken({
-    required this.accessToken,
-    required this.expiresIn,
-    required this.tokenType,
-    this.userId,
-    this.scope,
-  });
-
-  factory DeeToken.fromJson(Map<String, dynamic> json) => DeeToken(accessToken: json["access_token"] as String, expiresIn: json["expires_in"] as int, tokenType: json["token_type"] as String, userId: json["user_id"] as int?, scope: json["scope"] as String?);
-
-  // Auth - missing stubs for compilation
-  String getAuthorizationUrl(String appId) => 'https://connect.deezer.com/oauth/auth.php?app_id=$appId&redirect_uri=${Uri.encodeComponent('https://deezer.com')}&response_type=token';
-
-  Future<String> exchangeCodeForToken(String code, String appId) async {
-    // TODO: implement real OAuth token exchange
-    return '';
-  }
-
-  Future<DeezerUser> getMe() async {
-    // TODO: get user ID from stored token and call getUser
-    return DeezerUser(id: 0, name: '', email: '');
-  }
-
-  Future<void> clearAccessToken() async {
-    // TODO: clear from secure storage
-  }
-
-
-}
+// Alias
+typedef DeezerGenre = DeeGenre;
