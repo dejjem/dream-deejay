@@ -155,7 +155,7 @@ class AiDjService {
         artistName: artistName,
         albumName: albumName,
         bpm: bpm,
-        year: releaseYear,
+        releaseYear: releaseYear,
       );
     } else {
       // Fallback to template
@@ -163,7 +163,7 @@ class AiDjService {
         trackTitle: trackTitle,
         artistName: artistName,
         bpm: bpm,
-        year: releaseYear,
+        releaseYear: releaseYear,
       );
     }
 
@@ -204,7 +204,7 @@ class AiDjService {
       trackTitle: trackTitle,
       artistName: artistName,
       bpm: bpm,
-      year: releaseYear,
+      releaseYear: releaseYear,
     );
 
     final albumStr = albumName != null ? ' from "$albumName"' : '';
@@ -229,7 +229,7 @@ Only output the intro text, no quotes or labels.
           trackTitle: trackTitle,
           artistName: artistName,
           bpm: bpm,
-          year: releaseYear,
+          releaseYear: releaseYear,
         );
       } else {
         final resp = await _dio.post(
@@ -255,7 +255,7 @@ Only output the intro text, no quotes or labels.
         trackTitle: trackTitle,
         artistName: artistName,
         bpm: bpm,
-        year: releaseYear,
+        releaseYear: releaseYear,
       );
     }
   }
