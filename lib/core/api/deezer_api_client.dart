@@ -122,6 +122,46 @@ class _AuthInterceptor extends Interceptor {
   }
 }
 
+
+  // ---- User ----
+  Future<DeezerUser> getMe() async {
+    final resp = await _dio.get('/user/me');
+    return DeezerUser.fromJson(resp.data);
+  }
+
+  Future<List<DeezerTrack>> getMyRecommendations({int limit = 25}) async {
+    try {
+      final resp = await _dio.get('/user/me/recommendations/tracks',
+          queryParameters: {'limit': limit});
+      final data = resp.data['data'] as List;
+      return data.map((e) => DeezerTrack.fromJson(e)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<List<DeezerPlaylist>> getUserPlaylists(int userId) async {
+    final resp = await _dio.get('/user/$userId/playlists');
+    final data = resp.data['data'] as List;
+    return data.map((e) => DeezerPlaylist.fromJson(e)).toList();
+  }
+
+  // ---- Chart ----
+  Future<DeezerChart> getChart({int index = 0, int limit = 25}) async {
+    final resp = await _dio.get('/chart/0', queryParameters: {
+      'index': index,
+      'limit': limit,
+    });
+    return DeezerChart.fromJson(resp.data);
+  }
+
+  // Token management
+  void clearAccessToken() {
+    // TODO: clear from secure storage
+  }
+
+
+
 class DeeGenre {
   final int id;
   final String name;
@@ -132,22 +172,7 @@ class DeeGenre {
   factory DeeGenre.fromJson(Map<String, dynamic> json) => DeeGenre(id: json["id"], name: json["name"], picture: json["picture"]);
   }
 
-  // Recommendations wrapper
-  Future<List<DeezerTrack>> getMyRecommendations({int limit = 25}) async {
-    try {
-      final recs = await getCharts(limit: limit);
-      return recs;
-    } catch (_) {
-      return [];
-    }
-  }
 
-  // Chart wrapper
-  Future<List<DeezerTrack>> getChart({int index = 0, int limit = 25}) async {
-    return getCharts(index: index, limit: limit);
-  }
-
-}
 
 class DeeAuthToken {
   final String accessToken;
