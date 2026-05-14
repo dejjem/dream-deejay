@@ -107,7 +107,7 @@ class DeeJayAudioHandler extends BaseAudioHandler with SeekHandler {
 
     final currentSrc = _player.audioSource;
     if (currentSrc is ConcatenatingAudioSource) {
-      await currentSrc.add(index, source);
+      await currentSrc.add(source);
     }
   }
 

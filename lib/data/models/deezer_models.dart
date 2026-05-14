@@ -3,6 +3,8 @@ import 'package:json_annotation/json_annotation.dart';
 part 'deezer_models.g.dart';
 
 @JsonSerializable()
+enum SearchFilter { tracks, albums, artists }
+
 class DeezerTrack {
   final int id;
   final String title;
