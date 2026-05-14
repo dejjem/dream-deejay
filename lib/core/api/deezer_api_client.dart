@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
