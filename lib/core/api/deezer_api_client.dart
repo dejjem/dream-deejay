@@ -156,10 +156,9 @@ class _AuthInterceptor extends Interceptor {
   }
 
   // Token management
-  void clearAccessToken() {
+  Future<void> clearAccessToken() async {
     // TODO: clear from secure storage
   }
-
 
 
 class DeeGenre {
