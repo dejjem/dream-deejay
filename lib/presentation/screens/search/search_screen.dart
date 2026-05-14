@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audio_service/audio_service.dart';
-import 'package:dream_deejay/main.dart';
-import 'package:dream_deejay/data/models/deezer_models.dart';
-import 'package:dream_deejay/core/api/deezer_api_client.dart';
-import 'package:dream_deejay/core/utils/secure_storage.dart';
-import 'package:get_it/get_it.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/di/injection.dart';
+import '../../../core/api/deezer_api_client.dart';
+import '../../providers/providers.dart';
+import '../widgets/track_tile.dart';
+import '../widgets/section_header.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -174,12 +175,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     } else {
       return ListView.builder(
         itemCount: _results.length,
-        itemBuilder: (ctx, i) => TrackTile(
-          item: _results[i],
-          index: i + 1,
-          onTap: () => _playTrack(i),
-          onDownload: () => _downloadTrack(_results[i]),
-        ),
+        itemBuilder: (ctx, i) => TrackTile(item: _results[i], index: i + 1, onTap: () => _playTrack(i)),
       );
     }
   }
@@ -204,75 +200,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void _playAlbum(int index) async {
-    final album = _albums[index];
-    final albumId = album['id'] as int;
-    try {
-      final client = getIt<DeezerApiClient>();
-      final token = await getIt<SecureStorage>().getDeezerAccessToken();
-      if (token == null) return;
-      client.setAccessToken(token);
-
-      final tracks = await client.getAlbumTracks(albumId);
-      final trackMaps = tracks.map((t) => {
-        'id': t.id,
-        'title': t.title,
-        'artist': t.artist?.name ?? 'Unknown',
-        'album': album['title'],
-        'album_cover': album['cover_medium'] ?? album['cover'] ?? '',
-        'duration': t.duration,
-        'preview': t.preview,
-        'artist_id': t.artist?.id,
-        'album_id': albumId,
-      }).toList();
-
-      if (trackMaps.isEmpty) return;
-
-      final mediaItems = trackMaps.map((t) => MediaItem(
-        id: t['preview'] ?? 'https://www.deezer.com/track/${t['id']}',
-        title: t['title'] ?? 'Unknown',
-        artist: t['artist'] ?? 'Unknown',
-        album: t['album'] ?? 'Unknown',
-        artUri: Uri.tryParse(t['album_cover'] ?? ''),
-        duration: Duration(seconds: (t['duration'] ?? 0) as int),
-        extras: {'url': t['preview'], ...t},
-      )).toList();
-
-      audioHandler.setQueue(mediaItems);
-      audioHandler.play();
-
-      ref.read(queueProvider.notifier).setQueue(trackMaps);
-      ref.read(queueProvider.notifier).setPlaying(true);
-    } catch (e) {
-      // Silently fail — album tracks loading is best-effort
-    }
-  }
-
-  void _downloadTrack(Map<String, dynamic> track) async {
-    final id = track['id'] as int?;
-    if (id == null) return;
-    try {
-      final db = getIt<LocalDbService>();
-      final alreadyDownloaded = await db.isDownloaded(id);
-      if (alreadyDownloaded) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Already downloaded'),
-              backgroundColor: AppTheme.bgCard, duration: Duration(seconds: 1)),
-        );
-        return;
-      }
-      final path = await db.downloadTrack(track);
-      if (path != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Downloaded: ${track['title']}'),
-              backgroundColor: AppTheme.bgCard, duration: const Duration(seconds: 2)),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Download failed: $e'),
-            backgroundColor: AppTheme.bgCard, duration: const Duration(seconds: 2)),
-      );
-    }
+    // TODO: Load album tracks and play
   }
 }
 
