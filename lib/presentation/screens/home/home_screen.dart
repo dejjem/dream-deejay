@@ -20,6 +20,8 @@ class HomeScreen extends ConsumerState {
   List<Map<String, dynamic>> _chartTracks = [];
   bool _loading = true;
   String? _error;
+  final Set<int> _favoriteIds = {};
+  bool _favoritesLoaded = false;
 
   @override
   void initState() {
@@ -45,6 +47,8 @@ class HomeScreen extends ConsumerState {
         _loadChart(client),
       ]);
 
+      await _loadFavorites();
+
       setState(() {
         _loading = false;
         _recommendations = results[0];
@@ -53,6 +57,20 @@ class HomeScreen extends ConsumerState {
     } catch (e) {
       setState(() { _loading = false; _error = e.toString(); });
     }
+  }
+
+  Future<void> _loadFavorites() async {
+    try {
+      final db = getIt<LocalDbService>();
+      final rows = await db.getFavorites();
+      if (mounted) {
+        setState(() {
+          _favoriteIds.clear();
+          _favoriteIds.addAll(rows.map((r) => r['id'] as int));
+          _favoritesLoaded = true;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<List<Map<String, dynamic>>> _loadRecommendations(DeezerApiClient client) async {
@@ -164,6 +182,8 @@ class HomeScreen extends ConsumerState {
                   index: i + 1,
                   onTap: () => _playTrack(_chartTracks, i),
                   onDownload: () => _downloadTrack(_chartTracks[i]),
+                  onFavorite: () => _toggleFavorite(_chartTracks[i]),
+                  isFavorite: _favoriteIds.contains(_chartTracks[i]['id'] as int?),
                 ),
               ),
             ],
@@ -217,6 +237,27 @@ class HomeScreen extends ConsumerState {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Download failed: $e'),
             backgroundColor: AppTheme.bgCard, duration: Duration(seconds: 2)),
+      );
+    }
+  }
+
+  void _toggleFavorite(Map<String, dynamic> track) async {
+    final id = track['id'] as int?;
+    if (id == null) return;
+    try {
+      final db = getIt<LocalDbService>();
+      final isFav = _favoriteIds.contains(id);
+      if (isFav) {
+        await db.removeFavorite(id);
+        if (mounted) setState(() => _favoriteIds.remove(id));
+      } else {
+        await db.addFavorite(track);
+        if (mounted) setState(() => _favoriteIds.add(id));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Favorite error: $e'),
+            backgroundColor: AppTheme.bgCard, duration: const Duration(seconds: 2)),
       );
     }
   }

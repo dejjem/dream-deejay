@@ -5,6 +5,7 @@ import 'package:dream_deejay/main.dart';
 import 'package:dream_deejay/data/models/deezer_models.dart';
 import 'package:dream_deejay/core/api/deezer_api_client.dart';
 import 'package:dream_deejay/core/utils/secure_storage.dart';
+import 'package:dream_deejay/data/services/local_db_service.dart';
 import 'package:get_it/get_it.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
@@ -22,6 +23,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   String? _error;
   SearchFilter _filter = SearchFilter.tracks;
   String _query = '';
+  final Set<int> _favoriteIds = {};
+  bool _favoritesLoaded = false;
 
   @override
   void dispose() {
@@ -56,9 +59,24 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       }
 
       setState(() { _loading = false; _results = results; });
+      await _loadFavorites();
     } catch (e) {
       setState(() { _loading = false; _error = e.toString(); });
     }
+  }
+
+  Future<void> _loadFavorites() async {
+    try {
+      final db = getIt<LocalDbService>();
+      final rows = await db.getFavorites();
+      if (mounted) {
+        setState(() {
+          _favoriteIds.clear();
+          _favoriteIds.addAll(rows.map((r) => r['id'] as int));
+          _favoritesLoaded = true;
+        });
+      }
+    } catch (_) {}
   }
 
   Map<String, dynamic> _trackToMap(DeezerTrack t) => {
@@ -179,6 +197,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           index: i + 1,
           onTap: () => _playTrack(i),
           onDownload: () => _downloadTrack(_results[i]),
+          onFavorite: () => _toggleFavorite(_results[i]),
+          isFavorite: _favoriteIds.contains(_results[i]['id'] as int?),
         ),
       );
     }
@@ -270,6 +290,27 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Download failed: $e'),
+            backgroundColor: AppTheme.bgCard, duration: const Duration(seconds: 2)),
+      );
+    }
+  }
+
+  void _toggleFavorite(Map<String, dynamic> track) async {
+    final id = track['id'] as int?;
+    if (id == null) return;
+    try {
+      final db = getIt<LocalDbService>();
+      final isFav = _favoriteIds.contains(id);
+      if (isFav) {
+        await db.removeFavorite(id);
+        if (mounted) setState(() => _favoriteIds.remove(id));
+      } else {
+        await db.addFavorite(track);
+        if (mounted) setState(() => _favoriteIds.add(id));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Favorite error: $e'),
             backgroundColor: AppTheme.bgCard, duration: const Duration(seconds: 2)),
       );
     }
