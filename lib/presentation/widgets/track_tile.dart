@@ -7,7 +7,9 @@ class TrackTile extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final VoidCallback? onDownload;
+  final VoidCallback? onFavorite;
   final bool showDownload;
+  final bool isFavorite;
 
   const TrackTile({
     super.key,
@@ -16,7 +18,9 @@ class TrackTile extends StatelessWidget {
     this.onTap,
     this.onLongPress,
     this.onDownload,
+    this.onFavorite,
     this.showDownload = true,
+    this.isFavorite = false,
   });
 
   @override
@@ -76,6 +80,19 @@ class TrackTile extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (onFavorite != null)
+            SizedBox(
+              width: 36,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  size: 20,
+                ),
+                color: AppTheme.accentMagenta,
+                onPressed: onFavorite,
+              ),
+            ),
           if (onDownload != null && showDownload)
             SizedBox(
               width: 36,

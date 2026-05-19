@@ -22,6 +22,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   StreamSubscription<Duration>? _positionSub;
   StreamSubscription<Duration?>? _durationSub;
   StreamSubscription<bool>? _playingSub;
+  StreamSubscription? _queueSub;
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
   bool _isPlaying = false;
@@ -48,6 +49,14 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     _playingSub = (audioHandler as dynamic).playerStateStream.listen((state) {
       if (mounted) setState(() => _isPlaying = state.playing);
     });
+    // Watch queue for track changes to update favorite icon
+    _queueSub = ref.listen<QueueState>(queueProvider, (prev, next) {
+      final prevTrack = prev?.currentTrack;
+      final nextTrack = next.currentTrack;
+      if (prevTrack?['id'] != nextTrack?['id']) {
+        _checkFavoriteStatus(nextTrack);
+      }
+    }).call;
   }
 
   void _checkFavoriteStatus(Map<String, dynamic>? track) async {
@@ -63,6 +72,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     _positionSub?.cancel();
     _durationSub?.cancel();
     _playingSub?.cancel();
+    _queueSub?.cancel();
     super.dispose();
   }
 
@@ -133,8 +143,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   Widget build(BuildContext context) {
     final queue = ref.watch(queueProvider);
     final current = queue.currentTrack;
-    // Update favorite icon when track changes
-    _checkFavoriteStatus(current);
+    // Favorite status is updated reactively via queue listener in _setupListeners
 
     return Scaffold(
       backgroundColor: AppTheme.bgDeep,

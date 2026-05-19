@@ -18,6 +18,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
   List<Map<String, dynamic>> _results = [];
+  Set<int> _favoriteIds = {};
   bool _loading = false;
   String? _error;
   SearchFilter _filter = SearchFilter.tracks;
@@ -28,6 +29,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadFavoriteIds() async {
+    final db = getIt<LocalDbService>();
+    final favorites = await db.getFavorites();
+    _favoriteIds = favorites.map((f) => f['id'] as int).toSet();
   }
 
   Future<void> _search(String query) async {
@@ -54,6 +61,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         final artists = await client.searchArtists(query);
         results = artists.map(_artistToMap).toList();
       }
+
+      // Load favorite IDs for track results
+      await _loadFavoriteIds();
 
       setState(() { _loading = false; _results = results; });
     } catch (e) {
@@ -172,21 +182,25 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         itemBuilder: (ctx, i) => _AlbumGridItem(item: _results[i], onTap: () => _playAlbum(i)),
       );
     } else {
+      // Filter to track results only for proper indexing
+      final trackResults = _results.where((r) => r['_type'] == 'track').toList();
       return ListView.builder(
-        itemCount: _results.length,
+        itemCount: trackResults.length,
         itemBuilder: (ctx, i) => TrackTile(
-          item: _results[i],
+          item: trackResults[i],
           index: i + 1,
           onTap: () => _playTrack(i),
-          onDownload: () => _downloadTrack(_results[i]),
+          onDownload: () => _downloadTrack(trackResults[i]),
+          onFavorite: () => _toggleFavorite(trackResults[i]),
+          isFavorite: _favoriteIds.contains(trackResults[i]['id']),
         ),
       );
     }
   }
 
   void _playTrack(int index) {
-    final tracks = _results.where((r) => r['_type'] == 'track').toList();
-    final mediaItems = tracks.map((t) => MediaItem(
+    final trackResults = _results.where((r) => r['_type'] == 'track').toList();
+    final mediaItems = trackResults.map((t) => MediaItem(
       id: t['preview'] ?? 'https://www.deezer.com/track/${t['id']}',
       title: t['title'] ?? 'Unknown',
       artist: t['artist'] ?? 'Unknown',
@@ -199,7 +213,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     audioHandler.setQueue(mediaItems, initialIndex: index);
     audioHandler.play();
 
-    ref.read(queueProvider.notifier).setQueue(tracks, initialIndex: index);
+    ref.read(queueProvider.notifier).setQueue(trackResults, initialIndex: index);
     ref.read(queueProvider.notifier).setPlaying(true);
   }
 
