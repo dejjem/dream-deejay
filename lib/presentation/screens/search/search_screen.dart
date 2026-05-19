@@ -204,7 +204,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void _playAlbum(int index) async {
-    final album = _albums[index];
+    final album = _results[index];
     final albumId = album['id'] as int;
     try {
       final client = getIt<DeezerApiClient>();
@@ -218,7 +218,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         'title': t.title,
         'artist': t.artist?.name ?? 'Unknown',
         'album': album['title'],
-        'album_cover': album['cover_medium'] ?? album['cover'] ?? '',
+        'album_cover': album['album_cover'] ?? '',
         'duration': t.duration,
         'preview': t.preview,
         'artist_id': t.artist?.id,
