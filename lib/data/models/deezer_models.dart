@@ -229,3 +229,20 @@ class DeezerRecommendations {
 }
 
 enum SearchFilter { tracks, albums, artists }
+
+@JsonSerializable()
+class DeeGenre {
+  final int id;
+  final String name;
+  final String? picture;
+
+  DeeGenre({required this.id, required this.name, this.picture});
+
+  factory DeeGenre.fromJson(Map<String, dynamic> json) =>
+      _$DeeGenreFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DeeGenreToJson(this);
+}
+
+// Alias for generated code
+typedef DeezerGenre = DeeGenre;
