@@ -36,6 +36,11 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   void initState() {
     super.initState();
     _setupListeners();
+    // Check favorite status for current track on init
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final queue = ref.read(queueProvider);
+      _checkFavoriteStatus(queue.currentTrack);
+    });
   }
 
   void _setupListeners() {
