@@ -197,7 +197,7 @@ class DeezerApiClient {
   Future<List<DeezerGenre>> getGenres() async {
     final resp = await _dio.get('/genre');
     final data = resp.data['data'] as List;
-    return data.map((e) => DeezerGenre.fromJson(e)).toList();
+    return data.map((e) => DeeGenre.fromJson(e)).toList();
   }
 
   Future<List<DeezerArtist>> getGenreArtists(int genreId,
@@ -232,7 +232,7 @@ class DeezerApiClient {
     final token = _accessToken;
     if (token == null) return null;
     // Deezer stream URL is generated from the API token
-    return 'https://www.deezer.com/plugins/taas?API_TOKEN=$token&track_id=$trackId';
+    return 'https://www.deezer.com/plugins/taas?API_TOKEN=$token...Id';
   }
 }
 
@@ -251,63 +251,3 @@ class _AuthInterceptor extends Interceptor {
     handler.next(options);
   }
 }
-
-class DeeToken {
-  final String accessToken;
-  final String? refreshToken;
-  final int expiresIn;
-
-  DeeToken({
-    required this.accessToken,
-    this.refreshToken,
-    required this.expiresIn,
-  });
-
-  factory DeeToken.fromJson(Map<String, dynamic> json) {
-    return DeeToken(
-      accessToken: json['access_token'] as String,
-      refreshToken: json['refresh_token'] as String?,
-      expiresIn: json['expires_in'] as int? ?? 0,
-    );
-  }
-}
-
-class DeeAuthToken {
-  final String tokenType;
-  final String accessToken;
-  final String? refreshToken;
-  final int expiresIn;
-
-  DeeAuthToken({
-    required this.tokenType,
-    required this.accessToken,
-    this.refreshToken,
-    required this.expiresIn,
-  });
-
-  factory DeeAuthToken.fromJson(Map<String, dynamic> json) {
-    return DeeAuthToken(
-      tokenType: json['token_type'] as String? ?? 'bearer',
-      accessToken: json['access_token'] as String,
-      refreshToken: json['refresh_token'] as String?,
-      expiresIn: json['expires_in'] as int? ?? 0,
-    );
-  }
-}
-
-@JsonSerializable()
-class DeeGenre {
-  final int id;
-  final String name;
-  final String? picture;
-
-  DeeGenre({required this.id, required this.name, this.picture});
-
-  factory DeeGenre.fromJson(Map<String, dynamic> json) =>
-      _$DeeGenreFromJson(json);
-
-  Map<String, dynamic> toJson() => _$DeeGenreToJson(this);
-}
-
-// Alias
-typedef DeezerGenre = DeeGenre;

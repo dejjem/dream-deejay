@@ -7,8 +7,8 @@ import 'core/theme/app_theme.dart';
 import 'data/services/audio_handler.dart';
 import 'presentation/providers/providers.dart';
 import 'presentation/screens/home/home_screen.dart';
-import 'presentation/screens/settings/settings_screen.dart';
 import 'presentation/widgets/app_shell.dart';
+import 'presentation/screens/settings/settings_screen.dart' show SettingsScreen, LoginScreen;
 
 late BaseAudioHandler audioHandler;
 

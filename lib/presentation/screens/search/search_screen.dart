@@ -5,8 +5,10 @@ import 'package:dream_deejay/main.dart';
 import 'package:dream_deejay/data/models/deezer_models.dart';
 import 'package:dream_deejay/core/api/deezer_api_client.dart';
 import 'package:dream_deejay/core/utils/secure_storage.dart';
-import 'package:dream_deejay/data/services/local_db_service.dart';
+import 'package:dream_deejay/core/theme/app_theme.dart';
 import 'package:get_it/get_it.dart';
+import 'package:dream_deejay/data/services/local_db_service.dart';
+import '../../providers/providers.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -19,23 +21,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
   List<Map<String, dynamic>> _results = [];
-  Set<int> _favoriteIds = {};
   bool _loading = false;
   String? _error;
   SearchFilter _filter = SearchFilter.tracks;
   String _query = '';
+
+  // For album grid taps
+  List<Map<String, dynamic>> _albumResults = [];
 
   @override
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadFavoriteIds() async {
-    final db = getIt<LocalDbService>();
-    final favorites = await db.getFavorites();
-    _favoriteIds = favorites.map((f) => f['id'] as int).toSet();
   }
 
   Future<void> _search(String query) async {
@@ -58,13 +56,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       } else if (_filter == SearchFilter.albums) {
         final albums = await client.searchAlbums(query);
         results = albums.map(_albumToMap).toList();
+        _albumResults = results;
       } else {
         final artists = await client.searchArtists(query);
         results = artists.map(_artistToMap).toList();
       }
-
-      // Load favorite IDs for track results
-      await _loadFavoriteIds();
 
       setState(() { _loading = false; _results = results; });
     } catch (e) {
@@ -179,21 +175,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, childAspectRatio: 0.75, crossAxisSpacing: 12, mainAxisSpacing: 12,
         ),
-        itemCount: _results.length,
-        itemBuilder: (ctx, i) => _AlbumGridItem(item: _results[i], onTap: () => _playAlbum(i)),
+        itemCount: _albumResults.length,
+        itemBuilder: (ctx, i) => _AlbumGridItem(item: _albumResults[i], onTap: () => _playAlbum(i)),
       );
     } else {
-      // Filter to track results only for proper indexing
-      final trackResults = _results.where((r) => r['_type'] == 'track').toList();
       return ListView.builder(
-        itemCount: trackResults.length,
+        itemCount: _results.length,
         itemBuilder: (ctx, i) => TrackTile(
-          item: trackResults[i],
+          item: _results[i],
           index: i + 1,
           onTap: () => _playTrack(i),
-          onDownload: () => _downloadTrack(trackResults[i]),
-          onFavorite: () => _toggleFavorite(trackResults[i]),
-          isFavorite: _favoriteIds.contains(trackResults[i]['id']),
+          onDownload: () => _downloadTrack(_results[i]),
         ),
       );
     }
@@ -201,6 +193,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   void _playTrack(int index) {
     final trackResults = _results.where((r) => r['_type'] == 'track').toList();
+    // Find the actual track at this visual index
+    final trackMap = _results[index];
     final mediaItems = trackResults.map((t) => MediaItem(
       id: t['preview'] ?? 'https://www.deezer.com/track/${t['id']}',
       title: t['title'] ?? 'Unknown',
@@ -211,17 +205,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       extras: {'url': t['preview'], ...t},
     )).toList();
 
-    audioHandler.setQueue(mediaItems, initialIndex: index);
+    // Find index in trackResults
+    final trackIdx = trackResults.indexOf(trackMap).clamp(0, mediaItems.length - 1);
+
+    audioHandler.setQueue(mediaItems, initialIndex: trackIdx);
     audioHandler.play();
 
-    ref.read(queueProvider.notifier).setQueue(trackResults, initialIndex: index);
+    ref.read(queueProvider.notifier).setQueue(trackResults, initialIndex: trackIdx);
     ref.read(queueProvider.notifier).setPlaying(true);
   }
 
   void _playAlbum(int index) async {
-    final results = _results.where((r) => r['_type'] == 'album').toList();
-    if (index >= results.length) return;
-    final album = results[index];
+    if (index >= _albumResults.length) return;
+    final album = _albumResults[index];
     final albumId = album['id'] as int;
     try {
       final client = getIt<DeezerApiClient>();
@@ -271,24 +267,28 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       final db = getIt<LocalDbService>();
       final alreadyDownloaded = await db.isDownloaded(id);
       if (alreadyDownloaded) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Already downloaded'),
-              backgroundColor: AppTheme.bgCard, duration: Duration(seconds: 1)),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Already downloaded'),
+                backgroundColor: AppTheme.bgCard, duration: Duration(seconds: 1)),
+          );
+        }
         return;
       }
       final path = await db.downloadTrack(track);
-      if (path != null) {
+      if (path != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Downloaded: ${track['title']}'),
               backgroundColor: AppTheme.bgCard, duration: const Duration(seconds: 2)),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Download failed: $e'),
-            backgroundColor: AppTheme.bgCard, duration: const Duration(seconds: 2)),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Download failed: $e'),
+              backgroundColor: AppTheme.bgCard, duration: const Duration(seconds: 2)),
+        );
+      }
     }
   }
 }

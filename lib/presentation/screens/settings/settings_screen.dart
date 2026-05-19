@@ -7,8 +7,6 @@ import '../../../core/api/deezer_api_client.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../../core/utils/secure_storage.dart';
 import '../../providers/providers.dart';
-import 'package:dream_deejay/main.dart';
-import 'package:dream_deejay/core/api/deezer_api_client.dart';
 import 'package:dream_deejay/data/services/ai_dj_service.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {

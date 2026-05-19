@@ -22,7 +22,7 @@ class DeezerTrack {
   final DeezerArtist? artist;
   final DeezerAlbum? album;
   @JsonKey(name: 'type')
-  final String type = 'track';
+  final String type;
 
   DeezerTrack({
     required this.id,
@@ -38,6 +38,7 @@ class DeezerTrack {
     this.preview,
     this.artist,
     this.album,
+    this.type = 'track',
   });
 
   factory DeezerTrack.fromJson(Map<String, dynamic> json) =>
@@ -229,3 +230,63 @@ class DeezerRecommendations {
 }
 
 enum SearchFilter { tracks, albums, artists }
+
+// ---- Genre (legacy alias for generated code compatibility) ----
+
+@JsonSerializable()
+class DeeGenre {
+  final int id;
+  final String name;
+  final String? picture;
+
+  DeeGenre({
+    required this.id,
+    required this.name,
+    this.picture,
+  });
+
+  factory DeeGenre.fromJson(Map<String, dynamic> json) =>
+      _$DeeGenreFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DeeGenreToJson(this);
+}
+
+// ---- OAuth Token ----
+
+@JsonSerializable()
+class DeeAuthToken {
+  final String accessToken;
+  final String? refreshToken;
+  final int? expiresIn;
+
+  DeeAuthToken({
+    required this.accessToken,
+    this.refreshToken,
+    this.expiresIn,
+  });
+
+  factory DeeAuthToken.fromJson(Map<String, dynamic> json) =>
+      _$DeeAuthTokenFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DeeAuthTokenToJson(this);
+}
+
+// ---- Genre ----
+
+@JsonSerializable()
+class DeezerGenre {
+  final int id;
+  final String name;
+  final String? picture;
+
+  DeezerGenre({
+    required this.id,
+    required this.name,
+    this.picture,
+  });
+
+  factory DeezerGenre.fromJson(Map<String, dynamic> json) =>
+      _$DeezerGenreFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DeezerGenreToJson(this);
+}
