@@ -219,7 +219,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void _playAlbum(int index) async {
-    final album = _results[index];
+    final results = _results.where((r) => r['_type'] == 'album').toList();
+    if (index >= results.length) return;
+    final album = results[index];
     final albumId = album['id'] as int;
     try {
       final client = getIt<DeezerApiClient>();
