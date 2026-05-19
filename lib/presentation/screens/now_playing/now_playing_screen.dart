@@ -101,7 +101,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     // Derive country code from device locale for NewsAPI
     String countryCode = 'us';
     try {
-      final locale = PlatformDispatcher.instance.locale.toLanguageTag();
+final locale = PlatformDispatcher.instance.locale.toLanguageTag();
       if (locale.contains('_')) {
         countryCode = locale.split('_').last.toLowerCase();
       } else if (locale.contains('-')) {
