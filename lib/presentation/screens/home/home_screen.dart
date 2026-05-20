@@ -14,7 +14,7 @@ import 'package:dream_deejay/data/services/audio_handler.dart';
 import 'package:dream_deejay/presentation/providers/providers.dart';
 import 'package:dream_deejay/presentation/widgets/track_tile.dart';
 import 'package:dream_deejay/presentation/widgets/section_header.dart';
-import 'package:dream_deejay/data/services/audio_handler.dart';
+
 class HomeScreen extends ConsumerState {
   DeeJayAudioHandler get audioHandler => GetIt.I<DeeJayAudioHandler>();
   List<Map<String, dynamic>> _recommendations = [];
