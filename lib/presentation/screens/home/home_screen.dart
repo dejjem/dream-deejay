@@ -5,32 +5,26 @@ import 'package:just_audio/just_audio.dart';
 import 'package:dream_deejay/main.dart';
 import 'package:dream_deejay/data/models/deezer_models.dart';
 import 'package:dream_deejay/core/api/deezer_api_client.dart';
-import 'package:get_it/get_it.dart';
 import 'package:dream_deejay/core/utils/secure_storage.dart';
 import 'package:dream_deejay/core/theme/app_theme.dart';
-import 'package:dream_deejay/core/di/injection.dart';
 import 'package:dream_deejay/data/services/local_db_service.dart';
-import 'package:dream_deejay/data/services/audio_handler.dart';
 import 'package:dream_deejay/presentation/providers/providers.dart';
 import 'package:dream_deejay/presentation/widgets/track_tile.dart';
 import 'package:dream_deejay/presentation/widgets/section_header.dart';
 
 class HomeScreen extends ConsumerState {
-  DeeJayAudioHandler get audioHandler => GetIt.I<DeeJayAudioHandler>();
+  BaseAudioHandler get audioHandler => audioHandler;
   List<Map<String, dynamic>> _recommendations = [];
   List<Map<String, dynamic>> _chartTracks = [];
   bool _loading = true;
   String? _error;
-
   @override
   void initState() {
     super.initState();
     _loadData();
   }
-
   Future<void> _loadData() async {
     setState(() { _loading = true; _error = null; });
-
     try {
       final client = getIt<DeezerApiClient>();
       final token = await getIt<SecureStorage>().getDeezerAccessToken();
@@ -39,13 +33,11 @@ class HomeScreen extends ConsumerState {
         return;
       }
       client.setAccessToken(token);
-
       // Load recommendations + chart in parallel
       final results = await Future.wait([
         _loadRecommendations(client),
         _loadChart(client),
       ]);
-
       setState(() {
         _loading = false;
         _recommendations = results[0];
@@ -55,7 +47,6 @@ class HomeScreen extends ConsumerState {
       setState(() { _loading = false; _error = e.toString(); });
     }
   }
-
   Future<List<Map<String, dynamic>>> _loadRecommendations(DeezerApiClient client) async {
     try {
       final tracks = await client.getMyRecommendations(limit: 20);
@@ -64,7 +55,6 @@ class HomeScreen extends ConsumerState {
       return [];
     }
   }
-
   Future<List<Map<String, dynamic>>> _loadChart(DeezerApiClient client) async {
     try {
       final chart = await client.getChart(limit: 20);
@@ -73,7 +63,6 @@ class HomeScreen extends ConsumerState {
       return [];
     }
   }
-
   Map<String, dynamic> _trackToMap(dynamic t) {
     return {
       'id': t.id,
@@ -87,7 +76,6 @@ class HomeScreen extends ConsumerState {
       'album_id': t.album?.id,
     };
   }
-
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -98,7 +86,6 @@ class HomeScreen extends ConsumerState {
         ),
       );
     }
-
     if (_error == 'Not logged in') {
       return Scaffold(
         backgroundColor: AppTheme.bgDeep,
@@ -122,7 +109,6 @@ class HomeScreen extends ConsumerState {
         ),
       );
     }
-
     return Scaffold(
       backgroundColor: AppTheme.bgDeep,
       appBar: AppBar(
@@ -173,7 +159,6 @@ class HomeScreen extends ConsumerState {
       ),
     );
   }
-
   void _playTrack(List<Map<String, dynamic>> tracks, int index) {
     // Convert to MediaItems and play
     final queueNotifier = ref.read(queueProvider.notifier);
@@ -186,14 +171,11 @@ class HomeScreen extends ConsumerState {
       duration: Duration(seconds: (t['duration'] ?? 0) as int),
       extras: {'url': t['preview'], ...t},
     )).toList();
-
     audioHandler.setQueue(mediaItems, initialIndex: index);
     audioHandler.play();
-
     queueNotifier.setQueue(tracks, initialIndex: index);
     queueNotifier.setPlaying(true);
   }
-
   void _downloadTrack(Map<String, dynamic> track) async {
     final id = track['id'] as int?;
     if (id == null) return;
@@ -222,13 +204,10 @@ class HomeScreen extends ConsumerState {
     }
   }
 }
-
 class _AlbumCard extends StatelessWidget {
   final Map<String, dynamic> item;
   final VoidCallback onTap;
-
   _AlbumCard({required this.item, required this.onTap});
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

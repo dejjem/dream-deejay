@@ -260,7 +260,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       ref.read(queueProvider.notifier).setQueue(trackMaps);
       ref.read(queueProvider.notifier).setPlaying(true);
     } catch (e) {
-      // Silently fail — album tracks loading is best-effort
+      // Silently fail -- album tracks loading is best-effort
     }
   }
 
