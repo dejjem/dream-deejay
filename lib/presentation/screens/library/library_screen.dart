@@ -398,7 +398,7 @@ class _DownloadsTabState extends ConsumerState<_DownloadsTab> {
               Icon(Icons.storage, size: 16, color: AppTheme.accentCyan),
               const SizedBox(width: 8),
               Text(
-                '${_downloads.length} tracks · ${_formatBytes(_totalSize)}',
+                '${_downloads.length} tracks - ${_formatBytes(_totalSize)}',
                 style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
               ),
             ],

@@ -85,7 +85,7 @@ class DeeJayAudioHandler extends BaseAudioHandler with SeekHandler {
     final source = AudioSource.uri(Uri.parse(url), tag: item);
 
     if (_queue.length == 1) {
-      // First item — load and wait
+      // First item -- load and wait
       await _player.setAudioSource(source);
     } else {
       // Append to existing queue

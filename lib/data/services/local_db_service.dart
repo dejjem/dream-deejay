@@ -187,7 +187,7 @@ class LocalDbService {
     if (path == null) return null;
     // Verify file still exists
     if (await File(path).exists()) return path;
-    // File gone — clean up DB
+    // File gone -- clean up DB
     await removeDownload(trackId);
     return null;
   }
