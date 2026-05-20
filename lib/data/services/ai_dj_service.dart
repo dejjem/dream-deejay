@@ -173,7 +173,7 @@ class AiDjService {
       final weather = await fetchWeather(lat, lon);
       if (weather != null) {
         weatherText =
-            "It's ${weather.temperature.round()}°C and ${weather.condition} in ${weather.city}.";
+            "It's ${weather.temperature.round()}C and ${weather.condition} in ${weather.city}.";
       }
     }
 
@@ -213,7 +213,7 @@ class AiDjService {
 
     final prompt = '''
 Generate a 2-3 sentence radio DJ "coming up next" intro for a track.
-Format: "Next up, we have [Artist] dropping [Track]$albumStr — a [energy descriptor]$bpmStr release$yearStr. Stay locked in."
+Format: "Next up, we have [Artist] dropping [Track]$albumStr -- a [energy descriptor]$bpmStr release$yearStr. Stay locked in."
 Keep it punchy, energetic, and under 50 words total.
 Only output the intro text, no quotes or labels.
 ''';
@@ -268,7 +268,7 @@ Only output the intro text, no quotes or labels.
   }) {
     final bpmStr = bpm != null ? ' $bpm BPM' : '';
     final yearStr = releaseYear != null ? ', $releaseYear' : '';
-    return 'Next up, we have $artistName dropping "$trackTitle" — a high-energy$bpmStr release$yearStr. Stay locked in.';
+    return 'Next up, we have $artistName dropping "$trackTitle" -- a high-energy$bpmStr release$yearStr. Stay locked in.';
   }
 
   /// Speak the announcement via TTS
