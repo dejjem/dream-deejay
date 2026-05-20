@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils/secure_storage.dart';
 import '../../data/services/ai_dj_service.dart';
+import '../../data/models/deezer_models.dart';
 
 final secureStorageProvider = Provider<SecureStorage>((ref) => SecureStorage());
 
@@ -207,6 +208,5 @@ final currentNavIndexProvider = StateProvider<int>((ref) => 0);
 
 // Search state
 final searchQueryProvider = StateProvider<String>((ref) => '');
-enum SearchFilter { tracks, albums, artists }
 final searchFilterProvider = StateProvider<SearchFilter>((ref) => SearchFilter.tracks);
 final searchResultsProvider = StateProvider<List<Map<String, dynamic>>>((ref) => []);

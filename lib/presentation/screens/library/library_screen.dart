@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:dream_deejay/main.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:audio_service/audio_service.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/di/injection.dart';
-import '../../../core/api/deezer_api_client.dart';
-import '../../../core/utils/secure_storage.dart';
-import '../../../data/services/local_db_service.dart';
-import '../../providers/providers.dart';
-import 'package:dream_deejay/data/models/deezer_models.dart';
+import 'package:dream_deejay/core/theme/app_theme.dart';
+import 'package:dream_deejay/core/di/injection.dart';
 import 'package:dream_deejay/core/api/deezer_api_client.dart';
-
+import 'package:dream_deejay/core/utils/secure_storage.dart';
+import 'package:dream_deejay/data/services/local_db_service.dart';
+import 'package:dream_deejay/data/models/deezer_models.dart';
+import 'package:dream_deejay/presentation/providers/providers.dart';
 class LibraryScreen extends ConsumerWidget {
   const LibraryScreen({super.key});
 

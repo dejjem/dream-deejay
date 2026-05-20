@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:audio_service/audio_service.dart';
 import 'package:dream_deejay/main.dart';
 import 'package:dream_deejay/data/models/deezer_models.dart';
 import 'package:dream_deejay/core/api/deezer_api_client.dart';
 import 'package:dream_deejay/core/utils/secure_storage.dart';
 import 'package:dream_deejay/data/services/local_db_service.dart';
+import 'package:dream_deejay/presentation/providers/providers.dart';
 import 'package:get_it/get_it.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {

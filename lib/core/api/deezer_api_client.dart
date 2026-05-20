@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:json_annotation/json_annotation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
@@ -236,23 +235,6 @@ class DeezerApiClient {
   }
 }
 
-class DeeAuthInterceptor extends Interceptor {
-  final DeezerApiClient _client;
-
-  DeeAuthInterceptor(this._client);
-
-  @override
-  void onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
-    final token = _client.accessToken;
-    if (token != null) {
-      options.queryParameters['access_token'] = token;
-    }
-    handler.next(options);
-  }
-}
-
-// Use the same class defined below
 class _AuthInterceptor extends Interceptor {
   final DeezerApiClient _client;
 
