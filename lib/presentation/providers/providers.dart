@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dream_deejay/data/models/deezer_models.dart';
 import '../../core/utils/secure_storage.dart';
 import '../../data/services/ai_dj_service.dart';
+import '../../data/models/deezer_models.dart';
 
 final secureStorageProvider = Provider<SecureStorage>((ref) => SecureStorage());
 
