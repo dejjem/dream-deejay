@@ -294,7 +294,6 @@ class DeeAuthToken {
   }
 }
 
-@JsonSerializable()
 class DeeGenre {
   final int id;
   final String name;
@@ -302,10 +301,17 @@ class DeeGenre {
 
   DeeGenre({required this.id, required this.name, this.picture});
 
-  factory DeeGenre.fromJson(Map<String, dynamic> json) =>
-      _$DeeGenreFromJson(json);
+  factory DeeGenre.fromJson(Map<String, dynamic> json) => DeeGenre(
+        id: json['id'] as int,
+        name: json['name'] as String,
+        picture: json['picture'] as String?,
+      );
 
-  Map<String, dynamic> toJson() => _$DeeGenreToJson(this);
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'picture': picture,
+      };
 }
 
 // Alias
