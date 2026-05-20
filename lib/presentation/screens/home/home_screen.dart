@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:audio_service/audio_service.dart';
 import 'package:dream_deejay/main.dart';
 import 'package:dream_deejay/data/models/deezer_models.dart';
 import 'package:dream_deejay/core/api/deezer_api_client.dart';
@@ -12,7 +11,6 @@ import 'package:dream_deejay/presentation/widgets/track_tile.dart';
 import 'package:dream_deejay/presentation/widgets/section_header.dart';
 
 class HomeScreen extends ConsumerState {
-  BaseAudioHandler get audioHandler => audioHandler;
   List<Map<String, dynamic>> _recommendations = [];
   List<Map<String, dynamic>> _chartTracks = [];
   bool _loading = true;
