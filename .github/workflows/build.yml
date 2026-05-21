@@ -29,10 +29,24 @@ jobs:
       - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
 
+      - name: Run flutter doctor
+        run: flutter doctor -v
+
+      - name: Run flutter analyze
+        run: flutter analyze || true
+
       - name: Build debug APK
-        run: flutter build apk --debug
+        run: flutter build apk --debug 2>&1 | tee build.log
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-build-log
+          path: build.log
 
       - uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
