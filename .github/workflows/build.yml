@@ -18,6 +18,24 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
+      - name: Regenerate Android project (fix unsupported Gradle project)
+        run: |
+          # Backup ALL critical files including root build.gradle
+          cp android/app/build.gradle /tmp/app_build.gradle.bak
+          cp android/app/proguard-rules.pro /tmp/proguard-rules.pro.bak
+          cp android/gradle.properties /tmp/gradle.properties.bak
+          cp android/build.gradle /tmp/build.gradle.bak
+          cp android/settings.gradle /tmp/settings.gradle.bak
+          # Remove old android/ and regenerate
+          rm -rf android/
+          flutter create -t app . --platforms android --org com.dreamdeejay
+          # Restore all custom gradle files
+          cp /tmp/app_build.gradle.bak android/app/build.gradle
+          cp /tmp/proguard-rules.pro.bak android/app/proguard-rules.pro
+          cp /tmp/gradle.properties.bak android/gradle.properties
+          cp /tmp/build.gradle.bak android/build.gradle
+          cp /tmp/settings.gradle.bak android/settings.gradle
+
       - name: Create local.properties
         run: |
           mkdir -p android
