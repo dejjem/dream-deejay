@@ -54,6 +54,15 @@ jobs:
           flutter build apk --debug 2>&1 | tee build.log
           echo "---APK BUILD ARTIFACTS---"
           find build/app/outputs -type f 2>/dev/null || echo "No build/outputs found"
+          echo "---APK FILE CHECK---"
+          if [ -f build/app/outputs/flutter-apk/app-debug.apk ]; then
+            ls -lh build/app/outputs/flutter-apk/app-debug.apk
+            echo "APK EXISTS"
+          else
+            echo "WARNING: APK NOT FOUND"
+            echo "build/app/outputs contents:"
+            ls -la build/app/outputs/ 2>/dev/null || echo "outputs dir does not exist"
+          fi
 
       - name: Upload build log on failure
         if: failure()
