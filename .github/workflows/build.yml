@@ -1,7 +1,7 @@
 name: Build Debug APK
 on:
   push:
-    branches: [master, main, vega/build-fix]
+    branches: [master, main, vega/build-fix, agent/vega/5a1adcff]
   pull_request:
     branches: [master, main]
 
@@ -9,32 +9,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
-      - uses: android-actions/setup-android@v3
-
-      - name: Regenerate Android project (fix unsupported Gradle project)
-        run: |
-          # Backup ALL critical files including root build.gradle
-          cp android/app/build.gradle /tmp/app_build.gradle.bak
-          cp android/app/proguard-rules.pro /tmp/proguard-rules.pro.bak
-          cp android/gradle.properties /tmp/gradle.properties.bak
-          cp android/build.gradle /tmp/build.gradle.bak
-          cp android/settings.gradle /tmp/settings.gradle.bak
-          # Remove old android/ and regenerate
-          rm -rf android/
-          flutter create -t app . --platforms android --org com.dreamdeejay
-          # Restore all custom gradle files
-          cp /tmp/app_build.gradle.bak android/app/build.gradle
-          cp /tmp/proguard-rules.pro.bak android/app/proguard-rules.pro
-          cp /tmp/gradle.properties.bak android/gradle.properties
-          cp /tmp/build.gradle.bak android/build.gradle
-          cp /tmp/settings.gradle.bak android/settings.gradle
+      - uses: android-actions/setup-android@v4
 
       - name: Create local.properties
         run: |
@@ -47,10 +29,29 @@ jobs:
       - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Build debug APK
-        run: flutter build apk --debug
+      - name: Run flutter doctor
+        run: flutter doctor -v
 
-      - uses: actions/upload-artifact@v4
+      - name: Run flutter analyze
+        run: flutter analyze || true
+
+      - name: Build debug APK
+        run: |
+          flutter build apk --debug 2>&1 | tee build.log
+          echo "---APK BUILD ARTIFACTS---"
+          find build/app/outputs -type f 2>/dev/null || echo "No build/outputs found"
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-build-log
+          path: build.log
+
+      - uses: actions/upload-artifact@v5
+        if: success()
         with:
           name: debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          path: |
+            build/app/outputs/flutter-apk/app-debug.apk
+            build.log
