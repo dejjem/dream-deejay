@@ -21,7 +21,26 @@ jobs:
       - name: Create local.properties
         run: |
           mkdir -p android
-          echo "flutter.sdk=/opt/flutter" >> local.properties
+          echo "flutter.sdk=/opt/flutter" > android/local.properties
+
+      - name: Debug Flutter setup
+        run: |
+          echo "=== FLUTTER SDK DEBUG ==="
+          echo "flutter.sdk from local.properties: $(grep flutter.sdk local.properties)"
+          which flutter || echo "flutter not in PATH"
+          flutter --version || echo "flutter --version failed"
+          ls -la /opt/flutter/bin/flutter 2>/dev/null || echo "/opt/flutter/bin/flutter not found"
+          ls -la /opt/hostedtoolcache/flutter/ 2>/dev/null || echo "/opt/hostedtoolcache/flutter/ not found"
+          echo "=== ANDROID SDK DEBUG ==="
+          echo "ANDROID_HOME=${ANDROID_HOME}"
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}"
+          ls -la $ANDROID_HOME 2>/dev/null || echo "Android SDK not at ANDROID_HOME"
+          ls -la /opt/android-sdk 2>/dev/null || echo "/opt/android-sdk not found"
+          echo "=== GRADLE DEBUG ==="
+          ls -la android/build.gradle android/settings.gradle 2>/dev/null || echo "Gradle files missing"
+          cat android/settings.gradle | head -10
+          echo "=== PUBSPEC DEBUG ==="
+          ls -la pubspec.yaml
 
       - name: Install dependencies
         run: flutter pub get
