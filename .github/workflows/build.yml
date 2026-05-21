@@ -14,6 +14,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: '3.24.0'
           cache: true
 
       - uses: android-actions/setup-android@v4
@@ -21,14 +22,17 @@ jobs:
       - name: Create local.properties
         run: |
           mkdir -p android
-          echo "flutter.sdk=/opt/flutter" > android/local.properties
+          FLUTTER_ROOT=$(dirname $(dirname $(which flutter)))
+          echo "Detected FLUTTER_ROOT: $FLUTTER_ROOT"
+          echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
 
       - name: Debug Flutter setup
         run: |
           echo "=== FLUTTER SDK DEBUG ==="
-          echo "flutter.sdk from local.properties: $(grep flutter.sdk local.properties)"
+          cat android/local.properties
           which flutter || echo "flutter not in PATH"
           flutter --version || echo "flutter --version failed"
+          echo "FLUTTER_ROOT=${FLUTTER_ROOT:-unknown}"
           ls -la /opt/flutter/bin/flutter 2>/dev/null || echo "/opt/flutter/bin/flutter not found"
           ls -la /opt/hostedtoolcache/flutter/ 2>/dev/null || echo "/opt/hostedtoolcache/flutter/ not found"
           echo "=== ANDROID SDK DEBUG ==="
