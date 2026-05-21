@@ -1,7 +1,7 @@
 name: Build Debug APK
 on:
   push:
-    branches: [master, main, vega/build-fix]
+    branches: [master, main, vega/build-fix, agent/vega/5a1adcff]
   pull_request:
     branches: [master, main]
 
@@ -9,14 +9,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
 
       - name: Create local.properties
         run: |
