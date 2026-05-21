@@ -37,16 +37,19 @@ jobs:
 
       - name: Build debug APK
         run: |
-          flutter build apk --debug 2>&1 | tee build.log
+          echo "PWD=$(pwd)"
+          echo "---LISTING BEFORE BUILD---"
+          ls -la build/app/outputs/flutter-apk/ 2>/dev/null || echo "build/app/outputs/flutter-apk/ does not exist yet"
+          echo "---RUNNING FLUTTER BUILD---"
+          set -o pipefail
+          flutter build apk --debug 2>&1 | tee build.log; EXIT_CODE=$?
+          echo "flutter build exit_code=$EXIT_CODE"
+          echo "---LISTING AFTER BUILD---"
+          ls -la build/app/outputs/flutter-apk/ 2>/dev/null || echo "build/app/outputs/flutter-apk/ does not exist"
+          ls -la build/ 2>/dev/null | head -20 || echo "build/ dir empty/missing"
           echo "---APK BUILD ARTIFACTS---"
           find build/app/outputs -type f 2>/dev/null || echo "No build/outputs found"
-
-      - name: Show build log on failure
-        if: failure()
-        run: |
-          echo "=== BUILD.LOG (last 100 lines) ==="
-          tail -100 build.log
-          echo "=== END BUILD.LOG ==="
+          if [ -f build/app/outputs/flutter-apk/app-debug.apk ]; then echo "APK_EXISTS=true"; else echo "APK_EXISTS=false"; fi
 
       - name: Verify APK exists
         run: |
