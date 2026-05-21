@@ -36,7 +36,10 @@ jobs:
         run: flutter analyze || true
 
       - name: Build debug APK
-        run: flutter build apk --debug 2>&1 | tee build.log
+        run: |
+          flutter build apk --debug 2>&1 | tee build.log
+          echo "---APK BUILD ARTIFACTS---"
+          find build/app/outputs -type f 2>/dev/null || echo "No build/outputs found"
 
       - name: Upload build log on failure
         if: failure()
@@ -49,4 +52,6 @@ jobs:
         if: success()
         with:
           name: debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          path: |
+            build/app/outputs/flutter-apk/app-debug.apk
+            build.log
